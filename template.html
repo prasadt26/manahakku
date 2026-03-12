@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Ramabhadra&family=Mandali&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+background:#f0f0f0;
+text-align:center;
+}
+
+button{
+padding:10px 20px;
+font-size:18px;
+margin:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<canvas id="poster" width="1080" height="1080"></canvas>
+
+<br>
+
+<button onclick="downloadPoster()">Download Poster</button>
+
+<script>
+
+const canvas=new fabric.Canvas('poster',{selection:false});
+
+const headline="HEADLINE_TEXT";
+const description="DESCRIPTION_TEXT";
+const imageData="IMAGE_DATA";
+
+function balanceHeadline(text){
+
+words=text.split(" ");
+
+mid=Math.ceil(words.length/2);
+
+line1=words.slice(0,mid).join(" ");
+line2=words.slice(mid).join(" ");
+
+return line1+"\n"+line2;
+
+}
+
+function drawPoster(){
+
+canvas.clear()
+
+const width=1080
+const height=1080
+
+const imgHeight=550
+
+fabric.Image.fromURL("data:image/png;base64,"+imageData,function(img){
+
+img.scaleToWidth(width)
+
+img.set({
+top:0,
+left:0
+})
+
+canvas.add(img)
+
+})
+
+const gradient=new fabric.Rect({
+
+top:550,
+left:0,
+width:1080,
+height:180,
+
+fill:new fabric.Gradient({
+
+type:'linear',
+
+gradientUnits:'pixels',
+
+coords:{x1:0,y1:0,x2:0,y2:180},
+
+colorStops:[
+{offset:0,color:"#ff0000"},
+{offset:1,color:"#990000"}
+]
+
+})
+
+})
+
+canvas.add(gradient)
+
+balanced=balanceHeadline(headline)
+
+const headlineText=new fabric.Textbox(balanced,{
+
+top:570,
+left:40,
+width:1000,
+
+fontFamily:"Ramabhadra",
+fontSize:64,
+
+fill:"white",
+textAlign:"center"
+
+})
+
+canvas.add(headlineText)
+
+const descText=new fabric.Textbox(description,{
+
+top:760,
+left:80,
+width:920,
+
+fontFamily:"Mandali",
+fontSize:38,
+
+fill:"black",
+textAlign:"center"
+
+})
+
+canvas.add(descText)
+
+}
+
+function downloadPoster(){
+
+const dataURL=canvas.toDataURL({
+
+format:"png",
+quality:1
+
+})
+
+const link=document.createElement("a")
+
+link.href=dataURL
+link.download="poster.png"
+
+document.body.appendChild(link)
+
+link.click()
+
+document.body.removeChild(link)
+
+}
+
+window.onload=drawPoster
+
+</script>
+
+</body>
+
+</html>

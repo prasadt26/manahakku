@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Mana Hakku Poster Generator</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@300;400;700&family=Ramabhadra&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+background:#eef2f6;
+font-family:'Noto Sans Telugu',sans-serif;
+}
+
+canvas{
+background:white;
+border:4px solid #222;
+box-shadow:0 0 15px rgba(0,0,0,0.25);
+}
+
+.section-title{
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="container mt-4">
+
+<h3 class="text-center mb-4">మన హక్కు Poster Generator</h3>
+
+<div class="row">
+
+<div class="col-md-4">
+
+<label class="form-label section-title">Upload Image</label>
+<input type="file" id="imageUpload" class="form-control mb-3">
+
+<label class="form-label section-title">Headline</label>
+<input type="text" id="headline" class="form-control mb-3">
+
+
+
+<label class="form-label section-title">Description</label>
+<textarea id="description" rows="4" class="form-control mb-3"></textarea>
+
+<label class="form-label section-title">Date</label>
+<input type="date" id="dateInput" class="form-control mb-3">
+
+<button class="btn btn-primary w-100 mb-2" onclick="generatePoster()">
+Generate Poster
+</button>
+
+<button type="button" class="btn btn-success w-100" onclick="downloadPoster()">
+Download PNG
+</button>
+
+
+
+</div>
+
+
+<div class="col-md-8 text-center">
+
+<canvas id="posterCanvas" width="1300" height="1800"></canvas>
+
+</div>
+
+</div>
+</div>
+
+
+<script>
+
+const canvas = document.getElementById("posterCanvas");
+const ctx = canvas.getContext("2d");
+
+const logo = new Image();
+logo.src = "logo.png";
+
+function generatePoster(){
+
+const imageFile = document.getElementById("imageUpload").files[0];
+const headline = document.getElementById("headline").value;
+const description = document.getElementById("description").value;
+
+let dateValue = document.getElementById("dateInput").value;
+
+if(dateValue==""){
+const today = new Date();
+dateValue = today.toLocaleDateString("en-IN");
+}
+
+const reader = new FileReader();
+
+reader.onload = function(e){
+
+const mainImage = new Image();
+mainImage.src = e.target.result;
+
+mainImage.onload = function(){
+
+drawPoster(mainImage,headline,description,dateValue);
+
+}
+
+}
+
+reader.readAsDataURL(imageFile);
+
+}
+
+
+function drawPoster(mainImage,headline,description,dateValue){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+/* Layout */
+
+const headerHeight = canvas.height * 0.15;
+const imageHeight = canvas.height * 0.55;
+const headlineHeight = canvas.height * 0.10;
+const textHeight = canvas.height * 0.20;
+
+const captionStart = headerHeight + imageHeight;
+
+/* White base */
+
+ctx.fillStyle="#ffffff";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+
+/* HEADER BACKGROUND GRADIENT */
+
+const headerGradient = ctx.createLinearGradient(
+0,
+0,
+0,
+headerHeight
+);
+
+headerGradient.addColorStop(0,"#f8f9fb");
+headerGradient.addColorStop(1,"#e4e9f2");
+
+ctx.fillStyle = headerGradient;
+
+ctx.fillRect(
+0,
+0,
+canvas.width,
+headerHeight
+);
+
+
+/* HEADER SPLIT */
+
+const logoWidthArea = canvas.width * 0.70;
+const dateWidthArea = canvas.width * 0.30;
+
+
+/* LOGO */
+
+const logoWidth = logoWidthArea * 0.9;
+const logoHeight = headerHeight * 0.75;
+
+const logoX = (logoWidthArea-logoWidth)/2;
+const logoY = (headerHeight-logoHeight)/2;
+
+ctx.drawImage(
+logo,
+logoX,
+logoY,
+logoWidth,
+logoHeight
+);
+
+
+/* DATE */
+
+ctx.fillStyle="#000";
+ctx.font="bold 28px 'Ramabhadra'";
+ctx.textAlign="center";
+
+ctx.fillText(
+dateValue,
+logoWidthArea + dateWidthArea/2,
+headerHeight/2
+);
+
+
+/* LOCATION */
+
+ctx.font="28px 'Ramabhadra'";
+
+ctx.fillText(
+"రామగుండం",
+logoWidthArea + dateWidthArea/2,
+headerHeight/2 + 35
+);
+
+
+/* IMAGE */
+
+ctx.drawImage(
+mainImage,
+0,
+headerHeight,
+canvas.width,
+imageHeight
+);
+
+
+/* HEADLINE RED BAR */
+
+const gradient = ctx.createLinearGradient(
+0,
+captionStart,
+canvas.width,
+captionStart
+);
+
+gradient.addColorStop(0,"#6d0000");
+gradient.addColorStop(0.5,"#e00000");
+gradient.addColorStop(1,"#6d0000");
+
+ctx.fillStyle = gradient;
+
+ctx.fillRect(
+0,
+captionStart,
+canvas.width,
+headlineHeight
+);
+
+
+/* HEADLINE TEXT */
+
+const maxWidth = canvas.width - 200;
+
+const words = headline.split(" ");
+let line1 = "";
+let line2 = "";
+
+const lineSpacing = 35;
+
+ctx.font = "bold 68px 'Ramabhadra'";
+
+for(let i=0;i<words.length;i++){
+
+    let testLine = line1 + words[i] + " ";
+
+    if(ctx.measureText(testLine).width < maxWidth){
+        line1 = testLine;
+    } 
+    else{
+        line2 += words[i] + " ";
+    }
+
+}
+
+ctx.fillStyle = "#fff";
+ctx.textAlign = "center";
+
+if(line2 !== ""){
+
+    ctx.font = "bold 58px 'Ramabhadra'";
+
+    ctx.fillText(
+        line1.trim(),
+        canvas.width/2,
+        captionStart + headlineHeight/2 - lineSpacing
+    );
+
+    ctx.fillText(
+        line2.trim(),
+        canvas.width/2,
+        captionStart + headlineHeight/2 + lineSpacing
+    );
+
+}
+else{
+
+    ctx.font = "bold 58px 'Ramabhadra'";
+
+    ctx.fillText(
+        line1.trim(),
+        canvas.width/2,
+        captionStart + headlineHeight/2 + 10
+    );
+
+}
+
+
+/* DESCRIPTION BACKGROUND */
+
+const descStart = captionStart + headlineHeight;
+
+const descGradient = ctx.createLinearGradient(
+0,
+descStart,
+0,
+canvas.height
+);
+
+descGradient.addColorStop(0,"#ffffff");
+descGradient.addColorStop(1,"#f1f4f8");
+
+ctx.fillStyle = descGradient;
+
+ctx.fillRect(
+0,
+descStart,
+canvas.width,
+canvas.height - descStart
+);
+
+
+/* DIVIDER LINE */
+
+ctx.strokeStyle="#d0d0d0";
+ctx.lineWidth=2;
+
+ctx.beginPath();
+ctx.moveTo(0,captionStart + headlineHeight);
+ctx.lineTo(canvas.width,captionStart + headlineHeight);
+ctx.stroke();
+
+
+/* DESCRIPTION */
+
+ctx.fillStyle="#000";
+ctx.font="36px 'Ramabhadra'";
+ctx.textAlign="left";
+
+wrapText(
+description,
+120,
+captionStart + headlineHeight + 60,
+canvas.width - 240,
+40
+);
+
+
+/* WATERMARK */
+
+ctx.globalAlpha=0.12;
+
+ctx.font="bold 130px 'Ramabhadra'";
+ctx.fillStyle="#000";
+
+ctx.fillText(
+"మన హక్కు",
+canvas.width/2,
+canvas.height/2
+);
+
+ctx.globalAlpha=1;
+
+
+/* SECTION BORDERS */
+
+ctx.strokeStyle="#222";
+ctx.lineWidth=2;
+
+ctx.strokeRect(0,0,canvas.width,canvas.height);
+
+ctx.beginPath();
+ctx.moveTo(0,headerHeight);
+ctx.lineTo(canvas.width,headerHeight);
+
+ctx.moveTo(0,captionStart);
+ctx.lineTo(canvas.width,captionStart);
+
+ctx.moveTo(0,captionStart + headlineHeight);
+ctx.lineTo(canvas.width,captionStart + headlineHeight);
+
+ctx.stroke();
+
+}
+
+/* SMART TEXT WRAP */
+
+function wrapText(text,x,y,maxWidth,lineHeight){
+
+const words = text.split(" ");
+let line="";
+
+for(let n=0;n<words.length;n++){
+
+let testLine=line+words[n]+" ";
+let metrics=ctx.measureText(testLine);
+let testWidth=metrics.width;
+
+if(testWidth>maxWidth && n>0){
+
+ctx.fillText(line,x,y);
+line=words[n]+" ";
+y+=lineHeight;
+
+}
+else{
+
+line=testLine;
+
+}
+
+}
+
+ctx.fillText(line,x,y);
+
+}
+
+
+/* DOWNLOAD */
+
+function downloadPoster(){
+
+const canvas = document.getElementById("posterCanvas");
+
+canvas.toBlob(function(blob){
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "mana_hakku_poster.png";
+
+    document.body.appendChild(a);
+    a.click();
+
+    setTimeout(function(){
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    },100);
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
