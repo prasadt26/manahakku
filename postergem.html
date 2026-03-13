@@ -242,11 +242,29 @@
         ctx.fillRect(0,0,canvas.width,canvas.height);
 
         /* HEADER GRADIENT */
-        const headerGradient = ctx.createLinearGradient(0, 0, 0, headerHeight);
-        headerGradient.addColorStop(0,"#ffffff");
-        headerGradient.addColorStop(1,"#f8f9fa");
-        ctx.fillStyle = headerGradient;
+        //const headerGradient = ctx.createLinearGradient(0, 0, 0, headerHeight);
+        //headerGradient.addColorStop(0,"#ffffff");
+        //headerGradient.addColorStop(1,"#f8f9fa");
+        //ctx.fillStyle = headerGradient;
+        //ctx.fillRect(0, 0, canvas.width, headerHeight);
+
+
+        /* HEADER AREA WITH SOFT PREMIUM GRADIENT */
+        //const headerHeight = canvas.height * 0.12;
+        
+        // Creating a subtle horizontal gradient: Light Gray -> White -> Light Gray
+        const headerGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        headerGrad.addColorStop(0, "#f8fafc"); // Very light blue-gray
+        headerGrad.addColorStop(0.5, "#ffffff"); // Bright white center for the logo
+        headerGrad.addColorStop(1, "#f8fafc"); // Very light blue-gray
+        
+        ctx.fillStyle = headerGrad;
         ctx.fillRect(0, 0, canvas.width, headerHeight);
+
+        // Add a very thin separator line at the bottom of the header
+        ctx.strokeStyle = "rgba(0,0,0,0.05)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, headerHeight - 2, canvas.width, 2);
 
         /* LOGO & DATE AREA */
         const logoWidthArea = canvas.width * 0.60;
@@ -257,11 +275,11 @@
         ctx.drawImage(logo, (logoWidthArea-logoWidth)/2, (headerHeight-logoHeight)/2, logoWidth, logoHeight);
 
         ctx.fillStyle="#1a237e";
-        ctx.font="bold 32px 'Ramabhadra'";
+        ctx.font="bold 40px 'Ramabhadra'";
         ctx.textAlign="center";
         ctx.fillText(dateValue, logoWidthArea + dateWidthArea/2, headerHeight/2);
 
-        ctx.font="bold 35px 'Ramabhadra'";
+        ctx.font="bold 50px 'Ramabhadra'";
         ctx.fillText("రామగుండం", logoWidthArea + dateWidthArea/2, headerHeight/2 + 45);
 
         /* MAIN IMAGE */
@@ -310,9 +328,29 @@
         ctx.shadowBlur = 0; // Reset shadow
 
         /* DESCRIPTION AREA */
+/* DESCRIPTION AREA WITH VISIBLE LIGHT GRADIENT */
         const descStart = captionStart + headlineHeight;
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, descStart, canvas.width, canvas.height - descStart);
+        const descHeight = canvas.height - descStart;
+        
+        const descGrad = ctx.createLinearGradient(0, descStart, 0, canvas.height);
+        // Option A: Professional Paper/Silver look
+        descGrad.addColorStop(0, "#ffffff");   // Pure white at top
+        descGrad.addColorStop(1, "#e2e8f0");   // Visible light gray (slate-200)
+
+        /* OR Option B: Subtle News Gold tint (uncomment below to use) */
+        // descGrad.addColorStop(0, "#ffffff");
+        // descGrad.addColorStop(1, "#fff9e6"); 
+        
+        ctx.fillStyle = descGrad;
+        ctx.fillRect(0, descStart, canvas.width, descHeight);
+
+        /* DECORATIVE LINE */
+        ctx.strokeStyle = "#c00000";
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(100, descStart + 40);
+        ctx.lineTo(300, descStart + 40);
+        ctx.stroke();
 
         /* DECORATIVE LINE */
         ctx.strokeStyle="#c00000";
