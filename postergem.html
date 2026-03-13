@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mana Hakku | News Poster Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@300;400;700&family=Ramabhadra&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-news: #c00; /* News Red */
+            --secondary-news: #1a237e; /* News Blue */
+            --accent-gold: #ffd700;
+            --dark-bg: #0f172a;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            font-family: 'Inter', 'Noto Sans Telugu', sans-serif;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        /* Modern Sidebar Design */
+        .control-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Animated Gradient Border (on the Sidebar) */
+        .gradient-border-box {
+            position: relative;
+            padding: 3px;
+            background: linear-gradient(60deg, #c00, #1a237e, #ffd700, #c00);
+            background-size: 300% 300%;
+            animation: moveGradient 4s alternate infinite;
+            border-radius: 22px;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .section-title {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: var(--secondary-news);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* Canvas Styling */
+        .canvas-container {
+            position: sticky;
+            top: 20px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            border: 1px solid #ddd;
+        }
+
+        /* Button Styling */
+        .btn-generate {
+            background: linear-gradient(to right, var(--primary-news), #800);
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 12px;
+            transition: transform 0.2s;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            color: white;
+            box-shadow: 0 5px 15px rgba(204, 0, 0, 0.3);
+        }
+
+        .btn-download {
+            background: var(--dark-bg);
+            border: none;
+            color: white;
+            padding: 12px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            padding: 10px 15px;
+            margin-bottom: 5px; /* Added small margin to separate from counter */
+        }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+            border-color: var(--secondary-news);
+        }
+
+        .page-header {
+            background: var(--dark-bg);
+            padding: 20px 0;
+            margin-bottom: 40px;
+            color: white;
+            border-bottom: 4px solid var(--primary-news);
+        }
+
+        /* Styling for the character counter */
+        .char-counter {
+            font-size: 0.75rem;
+            color: #64748b; /* Gray text */
+            text-align: right;
+            margin-bottom: 15px; /* Separate from next input field */
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="page-header text-center">
+    <h2 class="mb-0" style="font-family: 'Ramabhadra';">మన హక్కు <span style="font-weight: 300; font-size: 1.2rem; color: var(--accent-gold);">Poster Studio</span></h2>
+</header>
+
+<div class="container pb-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="gradient-border-box">
+                <div class="control-panel">
+                    <label class="section-title">1. Upload Visual</label>
+                    <input type="file" id="imageUpload" class="form-control">
+                    <div style="height:15px"></div>
+
+                    <label class="section-title">2. Main Headline</label>
+                    <input type="text" id="headline" class="form-control" placeholder="Enter headline..." maxlength="85">
+                    <span id="headlineCounter" class="char-counter">0 / 85</span>
+
+                    <label class="section-title">3. Full Description</label>
+                    <textarea id="description" rows="4" class="form-control" placeholder="Write detailed news..." maxlength="675"></textarea>
+                    <span id="descriptionCounter" class="char-counter">0 / 675</span>
+
+                    <label class="section-title">4. Reporting Date</label>
+                    <input type="date" id="dateInput" class="form-control">
+                    <div style="height:15px"></div>
+
+                    <button class="btn btn-generate w-100 mb-3" onclick="generatePoster()">
+                        GENERATE POSTER
+                    </button>
+
+                    <button type="button" class="btn btn-download w-100" onclick="downloadPoster()">
+                        DOWNLOAD PNG
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-3 bg-white rounded shadow-sm">
+                <small class="text-muted"><strong>Pro Tip:</strong> Character limits are strictly enforced on headlines and descriptions for optimal poster layout. Use high-resolution landscape images.</small>
+            </div>
+        </div>
+
+        <div class="col-md-8 text-center canvas-container">
+            <div class="badge bg-danger mb-2 px-3 py-2">LIVE PREVIEW</div>
+            <canvas id="posterCanvas" width="1500" height="2600"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById("posterCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const logo = new Image();
+    // Assuming your logo exists at this path
+    logo.src = "logo.png"; 
+
+    // Character counters for text inputs
+    const headlineInput = document.getElementById('headline');
+    const headlineCounter = document.getElementById('headlineCounter');
+    const descriptionInput = document.getElementById('description');
+    const descriptionCounter = document.getElementById('descriptionCounter');
+
+    headlineInput.addEventListener('input', function() {
+        const count = this.value.length;
+        headlineCounter.textContent = `${count} / 85`;
+    });
+
+    descriptionInput.addEventListener('input', function() {
+        const count = this.value.length;
+        descriptionCounter.textContent = `${count} / 675`;
+    });
+
+    function generatePoster(){
+        const imageFile = document.getElementById("imageUpload").files[0];
+        if(!imageFile) { alert("Please upload an image first!"); return; }
+        
+        const headline = document.getElementById("headline").value;
+        const description = document.getElementById("description").value;
+        let dateValue = document.getElementById("dateInput").value;
+
+        if(dateValue==""){
+            const today = new Date();
+            dateValue = today.toLocaleDateString("en-IN");
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e){
+            const mainImage = new Image();
+            mainImage.src = e.target.result;
+            mainImage.onload = function(){
+                drawPoster(mainImage, headline, description, dateValue);
+            }
+        }
+        reader.readAsDataURL(imageFile);
+    }
+
+    function drawPoster(mainImage, headline, description, dateValue){
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        /* Layout Measurements */
+        const headerHeight = canvas.height * 0.12;
+        const imageHeight = canvas.height * 0.48;
+        const headlineHeight = canvas.height * 0.10;
+        const captionStart = headerHeight + imageHeight;
+
+        /* White base */
+        ctx.fillStyle="#ffffff";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        /* HEADER GRADIENT */
+        const headerGradient = ctx.createLinearGradient(0, 0, 0, headerHeight);
+        headerGradient.addColorStop(0,"#ffffff");
+        headerGradient.addColorStop(1,"#f8f9fa");
+        ctx.fillStyle = headerGradient;
+        ctx.fillRect(0, 0, canvas.width, headerHeight);
+
+        /* LOGO & DATE AREA */
+        const logoWidthArea = canvas.width * 0.60;
+        const dateWidthArea = canvas.width * 0.40;
+
+        const logoWidth = logoWidthArea * 0.8;
+        const logoHeight = headerHeight * 0.7;
+        ctx.drawImage(logo, (logoWidthArea-logoWidth)/2, (headerHeight-logoHeight)/2, logoWidth, logoHeight);
+
+        ctx.fillStyle="#1a237e";
+        ctx.font="bold 32px 'Ramabhadra'";
+        ctx.textAlign="center";
+        ctx.fillText(dateValue, logoWidthArea + dateWidthArea/2, headerHeight/2);
+
+        ctx.font="bold 35px 'Ramabhadra'";
+        ctx.fillText("రామగుండం", logoWidthArea + dateWidthArea/2, headerHeight/2 + 45);
+
+        /* MAIN IMAGE */
+        ctx.drawImage(mainImage, 0, headerHeight, canvas.width, imageHeight);
+
+        /* GRADIENT ACCENT BORDER BELOW IMAGE */
+        const imgAccentGradient = ctx.createLinearGradient(0, headerHeight + imageHeight, canvas.width, headerHeight + imageHeight + 10);
+        imgAccentGradient.addColorStop(0, "#c00000"); // Red
+        imgAccentGradient.addColorStop(0.5, "#ffd700"); // Gold accent
+        imgAccentGradient.addColorStop(1, "#1a237e"); // Blue
+        ctx.fillStyle = imgAccentGradient;
+        ctx.fillRect(0, headerHeight + imageHeight, canvas.width, 10); // A thin 10px gradient line
+
+        /* HEADLINE BAR WITH RICH GRADIENT */
+        const hGrad = ctx.createLinearGradient(0, captionStart, canvas.width, captionStart);
+        hGrad.addColorStop(0,"#800000");
+        hGrad.addColorStop(0.2,"#c00000");
+        hGrad.addColorStop(0.8,"#c00000");
+        hGrad.addColorStop(1,"#800000");
+        ctx.fillStyle = hGrad;
+        ctx.fillRect(0, captionStart, canvas.width, headlineHeight);
+
+        /* HEADLINE TEXT RENDERING */
+        const maxWidth = canvas.width - 200;
+        const words = headline.split(" ");
+        let line1 = ""; let line2 = "";
+        ctx.font = "bold 72px 'Ramabhadra'";
+        
+        for(let i=0; i<words.length; i++){
+            let testLine = line1 + words[i] + " ";
+            if(ctx.measureText(testLine).width < maxWidth) { line1 = testLine; } 
+            else { line2 += words[i] + " "; }
+        }
+
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center";
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = "rgba(0,0,0,0.5)";
+
+        if(line2 !== ""){
+            ctx.fillText(line1.trim(), canvas.width/2, captionStart + headlineHeight/2 - 25);
+            ctx.fillText(line2.trim(), canvas.width/2, captionStart + headlineHeight/2 + 55);
+        } else {
+            ctx.fillText(line1.trim(), canvas.width/2, captionStart + headlineHeight/2 + 20);
+        }
+        ctx.shadowBlur = 0; // Reset shadow
+
+        /* DESCRIPTION AREA */
+        const descStart = captionStart + headlineHeight;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, descStart, canvas.width, canvas.height - descStart);
+
+        /* DECORATIVE LINE */
+        ctx.strokeStyle="#c00000";
+        ctx.lineWidth=8;
+        ctx.beginPath();
+        ctx.moveTo(100, descStart + 40);
+        ctx.lineTo(300, descStart + 40);
+        ctx.stroke();
+
+        ctx.fillStyle="#111";
+        ctx.font="48px 'Ramabhadra'";
+        ctx.textAlign="left";
+        wrapText(description, 100, descStart + 120, canvas.width - 200, 70);
+
+        /* WATERMARK */
+        ctx.globalAlpha=0.05;
+        ctx.font="bold 180px 'Ramabhadra'";
+        ctx.fillStyle="#000";
+        ctx.textAlign="center";
+        ctx.fillText("మన హక్కు", canvas.width/2, canvas.height * 0.8);
+        ctx.globalAlpha=1;
+
+        /* MODIFIED DECORATIVE GRADIENT OUTER FRAME BORDER */
+        // Now using a rich news-themed gradient for the outer border
+        const finalBorderGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        // Start: Deep Red (Matching primary news color)
+        finalBorderGradient.addColorStop(0, "#800000"); 
+        // Middle: Gold accent
+        finalBorderGradient.addColorStop(0.5, "#ffd700"); 
+        // End: Deep Navy Blue (Matching secondary news color)
+        finalBorderGradient.addColorStop(1, "#1a237e");
+        
+        ctx.strokeStyle = finalBorderGradient;
+        ctx.lineWidth = 15; // Thick border
+        ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, canvas.width - ctx.lineWidth, canvas.height - ctx.lineWidth);
+        
+        // Minor inner dark edge to give depth
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(0.5, 0.5, canvas.width - 1, canvas.height - 1);
+    }
+
+    function wrapText(text, x, y, maxWidth, lineHeight) {
+        if (!text) return; // Prevent errors if no text
+        const words = text.split(" ");
+        let line = "";
+        for(let n=0; n<words.length; n++) {
+            let testLine = line + words[n] + " ";
+            if(ctx.measureText(testLine).width > maxWidth && n > 0) {
+                ctx.fillText(line, x, y);
+                line = words[n] + " ";
+                y += lineHeight;
+            } else { line = testLine; }
+        }
+        ctx.fillText(line, x, y);
+    }
+
+    function downloadPoster(){
+        const link = document.createElement('a');
+        link.download = 'mana-hakku-news.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    }
+</script>
+
+</body>
+</html>
