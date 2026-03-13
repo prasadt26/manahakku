@@ -75,7 +75,7 @@ Download PNG
 
 <div class="col-md-8 text-center">
 
-<canvas id="posterCanvas" width="1300" height="1800"></canvas>
+<canvas id="posterCanvas" width="1500" height="2600"></canvas>
 
 </div>
 
@@ -130,10 +130,10 @@ ctx.clearRect(0,0,canvas.width,canvas.height);
 
 /* Layout */
 
-const headerHeight = canvas.height * 0.15;
-const imageHeight = canvas.height * 0.55;
+const headerHeight = canvas.height * 0.12;
+const imageHeight = canvas.height * 0.48;
 const headlineHeight = canvas.height * 0.10;
-const textHeight = canvas.height * 0.20;
+const textHeight = canvas.height * 0.30;
 
 const captionStart = headerHeight + imageHeight;
 
@@ -152,8 +152,8 @@ const headerGradient = ctx.createLinearGradient(
 headerHeight
 );
 
-headerGradient.addColorStop(0,"#ffffff");
-headerGradient.addColorStop(1,"#ffffff");
+headerGradient.addColorStop(0,"#fffbe6");
+headerGradient.addColorStop(1,"#fff3cc");
 
 ctx.fillStyle = headerGradient;
 
@@ -167,8 +167,8 @@ headerHeight
 
 /* HEADER SPLIT */
 
-const logoWidthArea = canvas.width * 0.70;
-const dateWidthArea = canvas.width * 0.30;
+const logoWidthArea = canvas.width * 0.60;
+const dateWidthArea = canvas.width * 0.40;
 
 
 /* LOGO */
@@ -254,7 +254,7 @@ const words = headline.split(" ");
 let line1 = "";
 let line2 = "";
 
-const lineSpacing = 35;
+const lineSpacing = 25;
 
 ctx.font = "bold 68px 'Ramabhadra'";
 
@@ -293,7 +293,7 @@ if(line2 !== ""){
 }
 else{
 
-    ctx.font = "bold 58px 'Ramabhadra'";
+    ctx.font = "bold 48px 'Ramabhadra'";
 
     ctx.fillText(
         line1.trim(),
@@ -342,7 +342,7 @@ ctx.stroke();
 /* DESCRIPTION */
 
 ctx.fillStyle="#000";
-ctx.font="36px 'Ramabhadra'";
+ctx.font="46px 'Ramabhadra'";
 ctx.textAlign="left";
 
 wrapText(
@@ -373,7 +373,7 @@ ctx.globalAlpha=1;
 /* SECTION BORDERS */
 
 ctx.strokeStyle="#222";
-ctx.lineWidth=2;
+ctx.lineWidth=3;
 
 ctx.strokeRect(0,0,canvas.width,canvas.height);
 
