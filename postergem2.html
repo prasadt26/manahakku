@@ -174,10 +174,9 @@
         ctx.drawImage(mainImage, 0, headerHeight, canvas.width, imageHeight);
 
         /* 3. HEADER */
-        const headerGrad = ctx.createLinearGradient(0, 0, 0, headerHeight);
-        headerGrad.addColorStop(0, "#ffffff");
-        headerGrad.addColorStop(1, "#ffffff");
-        ctx.fillStyle = headerGrad;
+        /* 3. HEADER */
+        // Using a slightly darker medium-light grey
+        ctx.fillStyle = "#cbd5e1"; 
         ctx.fillRect(0, 0, canvas.width, headerHeight);
 
         // --- UPDATED LOGO LOGIC ---
