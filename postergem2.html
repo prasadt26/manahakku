@@ -106,11 +106,11 @@
                     <label class="section-title">1. PHOTO</label>
                     <input type="file" id="imageUpload" class="form-control mb-3">
 
-                    <label class="section-title">2. HEADLINE (FITS 3 LINES)</label>
+                    <label class="section-title">2. HEADLINE (AUTO-SCALING)</label>
                     <textarea id="headline" class="form-control" rows="3" placeholder="Enter headline..." maxlength="120"></textarea>
                     <span id="headlineCounter" class="char-counter">0 / 120</span>
 
-                    <label class="section-title">3. DESCRIPTION</label>
+                    <label class="section-title">3. DESCRIPTION (AUTO-SCALING)</label>
                     <textarea id="description" rows="5" class="form-control" placeholder="Write news content..." maxlength="1000"></textarea>
                     <span id="descriptionCounter" class="char-counter">0 / 1000</span>
 
@@ -135,7 +135,6 @@
     const logo = new Image();
     logo.src = "logo.png"; 
 
-    // Character counters
     const hInput = document.getElementById('headline');
     const dInput = document.getElementById('description');
     
@@ -162,7 +161,6 @@
     function drawPoster(mainImage, headline, description, dateValue){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Layout Constants
         const headerHeight = canvas.height * 0.12;
         const imageHeight = canvas.height * 0.45;
         const headlineHeight = canvas.height * 0.14; 
@@ -177,22 +175,28 @@
 
         /* 3. HEADER */
         const headerGrad = ctx.createLinearGradient(0, 0, 0, headerHeight);
-        headerGrad.addColorStop(0, "#f1f5f9");
+        headerGrad.addColorStop(0, "#ffffff");
         headerGrad.addColorStop(1, "#ffffff");
         ctx.fillStyle = headerGrad;
         ctx.fillRect(0, 0, canvas.width, headerHeight);
 
-        const lW = canvas.width * 0.45;
-        const lH = headerHeight * 0.65;
-        ctx.drawImage(logo, 80, (headerHeight-lH)/2, lW, lH);
+        // --- UPDATED LOGO LOGIC ---
+        const padding = 20; // Increase this number to pull logo further from borders
+        const lW = canvas.width * 0.50; 
+        const lH = headerHeight - (padding * 2); // Subtract padding from top and bottom
+        
+        // Draw with the padding offset (padding for X, padding for Y)
+        ctx.drawImage(logo, 60, padding, lW, lH);
+        // --------------------------
 
         ctx.fillStyle="#1a237e";
         ctx.textAlign="right";
-        ctx.font="bold 40px 'Inter'";
+        ctx.font="bold 40px 'Ramabhadra'";
         ctx.fillText(dateValue, canvas.width - 100, headerHeight/2 - 5);
-        ctx.font="bold 55px 'Ramabhadra'";
+        ctx.font="bold 50px 'Ramabhadra'";
         ctx.fillText("రామగుండం", canvas.width - 100, headerHeight/2 + 65);
-
+        
+        
         /* 4. HEADLINE BAR */
         const hGrad = ctx.createLinearGradient(0, captionStart, 0, captionStart + headlineHeight);
         hGrad.addColorStop(0,"#0d123e");
@@ -205,16 +209,28 @@
         ctx.fillRect(0, captionStart, canvas.width, 8); 
         ctx.fillRect(0, captionStart + headlineHeight - 8, canvas.width, 8);
 
-        /* 5. DYNAMIC HEADLINE (Centered Multiline) */
+        /* 5. DYNAMIC HEADLINE SCALING */
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "center";
-        ctx.font = "bold 72px 'Ramabhadra'";
         ctx.shadowBlur = 12;
         ctx.shadowColor = "rgba(0,0,0,0.8)";
         
-        const hLines = getWrappedLines(headline, canvas.width - 200);
-        const hLineHeight = 85;
-        let hStartY = captionStart + (headlineHeight / 2) - ((hLines.length * hLineHeight) / 2) + 60;
+        let hFontSize = 110; // Start large for short text
+        let hLineHeight = 120;
+        let hLines = [];
+        const hMaxWidth = canvas.width - 200;
+        const hMaxTotalHeight = headlineHeight - 40;
+
+        // Loop to find best fit for Headline
+        do {
+            ctx.font = `bold ${hFontSize}px 'Ramabhadra'`;
+            hLines = getWrappedLines(headline, hMaxWidth);
+            if ((hLines.length * hLineHeight) <= hMaxTotalHeight || hFontSize <= 65) break;
+            hFontSize -= 2;
+            hLineHeight -= 2.2;
+        } while (hFontSize > 65);
+
+        let hStartY = captionStart + (headlineHeight / 2) - ((hLines.length * hLineHeight) / 2) + (hFontSize * 0.8);
 
         hLines.forEach((line) => {
             ctx.fillText(line, canvas.width/2, hStartY);
@@ -222,10 +238,10 @@
         });
         ctx.shadowBlur = 0;
 
-        /* 6. DESCRIPTION (With Shrink-to-Fit Logic) */
+        /* 6. DESCRIPTION SCALING */
         const descStart = captionStart + headlineHeight;
         const descPadding = 100;
-        const descMaxHeight = (canvas.height - descStart) - 180; // Safety buffer for border
+        const descMaxHeight = (canvas.height - descStart) - 180;
         const descMaxWidth = canvas.width - (descPadding * 2);
 
         ctx.fillStyle = "#f8fafc";
@@ -237,18 +253,18 @@
         ctx.fillStyle="#1e293b";
         ctx.textAlign="left";
 
-        let dFontSize = 46;
-        let dLineHeight = 75;
+        let dFontSize = 55; // Increased start size for short descriptions
+        let dLineHeight = 85;
         let dLines = [];
 
-        // Auto-scale font size if text overflows
+        // Loop to find best fit for Description
         do {
             ctx.font = `${dFontSize}px 'Ramabhadra'`;
             dLines = getWrappedLines(description, descMaxWidth);
-            if ((dLines.length * dLineHeight) <= descMaxHeight || dFontSize < 22) break;
-            dFontSize -= 2;
-            dLineHeight -= 3;
-        } while (dFontSize > 20);
+            if ((dLines.length * dLineHeight) <= descMaxHeight || dFontSize <= 30) break;
+            dFontSize -= 1;
+            dLineHeight -= 1.5;
+        } while (dFontSize > 25);
 
         let dStartY = descStart + 160;
         dLines.forEach(line => {
@@ -264,7 +280,7 @@
         ctx.fillText("మన హక్కు", canvas.width/2, canvas.height * 0.88);
         ctx.globalAlpha=1;
 
-        /* 8. THINNER METALLIC BORDER (18px) */
+        /* 8. BORDER */
         const bGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
         bGrad.addColorStop(0, "#8a6d3b");
         bGrad.addColorStop(0.5, "#d4af37");
@@ -274,9 +290,8 @@
         ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, canvas.width - ctx.lineWidth, canvas.height - ctx.lineWidth);
     }
 
-    // Standard Wrapping Helper Function
     function getWrappedLines(text, maxWidth) {
-        if (!text) return [];
+        if (!text) return [""];
         const words = text.split(" ");
         let lines = [];
         let currentLine = "";
@@ -296,7 +311,7 @@
 
     function downloadPoster(){
         const link = document.createElement('a');
-        link.download = `NewsPoster_${Date.now()}.png`;
+        link.download = `ManaHakku_${Date.now()}.png`;
         link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
     }

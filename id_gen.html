@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mana Hakku - Press ID Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0;
+        }
+
+        /* ID Card Dimensions */
+        #id-card {
+            width: 350px;
+            height: 550px;
+            background: white;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid #cbd5e1;
+        }
+
+        /* Header logic to fit your specific logo perfectly */
+        .header-section {
+            background: #fff;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            border-bottom: 5px solid #003399; /* Navy Blue Accent */
+        }
+
+        .side-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 10px;
+            height: 100%;
+            background: linear-gradient(to bottom, #003399, #128807); /* Blue to Green Gradient */
+            z-index: 30;
+        }
+
+        .press-badge {
+            position: absolute;
+            top: 140px;
+            right: 25px;
+            background: #128807; /* Media Green */
+            color: white;
+            padding: 4px 14px;
+            font-weight: 800;
+            font-size: 11px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            z-index: 20;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .profile-container {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 5px solid #fff;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            margin: 15px auto 0;
+            background: #f1f5f9;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        .profile-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .info-grid {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 15px;
+        }
+
+        .footer-strip {
+            background: #003399; /* Primary Blue */
+            color: white;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .id-label {
+            color: #64748b;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .logo-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col lg:flex-row gap-8 items-start justify-center">
+
+    <!-- Control Panel -->
+    <div class="w-full max-w-md bg-white p-6 rounded-2xl shadow-xl border border-blue-100">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-2 h-8 bg-blue-700 rounded-full"></div>
+            <h2 class="text-2xl font-black text-slate-800">Card Builder</h2>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Full Name</label>
+                <input type="text" id="input-name" placeholder="M. SAI KUMAR" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all font-semibold">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Designation</label>
+                    <input type="text" id="input-role" placeholder="Chief Reporter" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ID Number</label>
+                    <input type="text" id="input-id" placeholder="MH-7788-2024" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-mono text-sm">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Reporter Photo</label>
+                <input type="file" id="input-photo" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+            </div>
+
+            <div class="pt-4">
+                <button onclick="downloadID()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-blue-200 flex items-center justify-center gap-3 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    EXPORT FOR PRINT (HD)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ID Card Preview -->
+    <div class="flex flex-col items-center">
+        <div id="id-card">
+            <div class="side-bar"></div>
+            <div class="press-badge">Press</div>
+            
+            <div class="header-section">
+                <!-- Change "logo.png" to your local filename as needed -->
+                <img src="logo.png" alt="Mana Hakku Logo" class="logo-img" onerror="this.src='logo.jpg'; this.onerror=function(){ this.style.display='none'; document.getElementById('text-logo').style.display='block'; }">
+                <div id="text-logo" style="display:none;" class="font-black text-blue-900 text-xl italic">MANA HAKKU</div>
+            </div>
+
+            <div class="profile-container">
+                <img id="card-photo" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop" class="profile-img" alt="Profile">
+            </div>
+
+            <div class="px-8 text-center mt-4">
+                <h1 id="card-name" class="text-2xl font-black text-slate-900 tracking-tight uppercase leading-tight">M. SAI KUMAR</h1>
+                <p id="card-role" class="text-green-700 font-extrabold text-sm tracking-widest uppercase mt-0.5">Chief Reporter</p>
+                
+                <div class="info-grid space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-2">
+                        <span class="id-label">Registration ID</span>
+                        <span id="card-id" class="text-slate-800 text-sm font-mono font-black">MH-0982-2024</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-left">
+                        <div>
+                            <span class="id-label block">Expiry</span>
+                            <span class="text-xs font-bold text-slate-700">Dec 2026</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="id-label block">Blood Group</span>
+                            <span class="text-xs font-bold text-slate-700">B+ Positive</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex flex-col items-center gap-2">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFIED-MANA-HAKKU-PRESS" class="w-14 h-14" alt="QR">
+                    <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Digital Authentication</span>
+                </div>
+            </div>
+
+            <div class="footer-strip">
+                ESTD 2024 • MANA HAKKU MEDIA • PRESS COUNCIL VERIFIED
+            </div>
+        </div>
+        <p class="mt-4 text-slate-500 text-xs font-semibold uppercase tracking-widest opacity-60">Professional Media Credential</p>
+    </div>
+
+    <script>
+        // Sync Logic
+        const sync = (id, target, def) => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', (e) => {
+                    document.getElementById(target).textContent = e.target.value || def;
+                });
+            }
+        };
+
+        sync('input-name', 'card-name', 'M. SAI KUMAR');
+        sync('input-role', 'card-role', 'Chief Reporter');
+        sync('input-id', 'card-id', 'MH-7788-2024');
+
+        // Image Load
+        document.getElementById('input-photo').addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (v) => document.getElementById('card-photo').src = v.target.result;
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // High Definition Export
+        async function downloadID() {
+            const card = document.getElementById('id-card');
+            const name = document.getElementById('input-name').value || 'ManaHakku_ID';
+            
+            // Generate at 4x scale for professional print quality
+            const canvas = await html2canvas(card, {
+                scale: 4,
+                useCORS: true,
+                backgroundColor: null,
+                logging: false
+            });
+            
+            const link = document.createElement('a');
+            link.download = `${name.replace(/\s+/g, '_')}_PressID.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        }
+    </script>
+</body>
+</html>
