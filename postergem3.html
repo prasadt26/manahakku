@@ -174,26 +174,29 @@
         ctx.drawImage(mainImage, 0, headerHeight, canvas.width, imageHeight);
 
         /* 3. HEADER */
-        /* 3. HEADER */
-        // Solid light yellow color
         ctx.fillStyle = "#fcec53"; 
         ctx.fillRect(0, 0, canvas.width, headerHeight);
 
-        // --- UPDATED LOGO LOGIC ---
-        const padding = 20; // Increase this number to pull logo further from borders
+        // LOGO
+        const padding = 20; 
         const lW = canvas.width * 0.50; 
-        const lH = headerHeight - (padding * 2); // Subtract padding from top and bottom
-        
-        // Draw with the padding offset (padding for X, padding for Y)
+        const lH = headerHeight - (padding * 2); 
         ctx.drawImage(logo, 60, padding, lW, lH);
-        // --------------------------
 
+        // HEADER TEXT (RIGHT SIDE)
         ctx.fillStyle="#1a237e";
         ctx.textAlign="right";
+        
+        // --- NEW: ITALIC SUBTITLE ---
+        ctx.font="italic bold 35px 'Noto Sans Telugu'";
+        ctx.fillText("సమాచార పత్రిక", canvas.width - 100, headerHeight/2 - 55);
+        // ----------------------------
+
         ctx.font="bold 40px 'Ramabhadra'";
-        ctx.fillText(dateValue, canvas.width - 100, headerHeight/2 - 5);
+        ctx.fillText(dateValue, canvas.width - 100, headerHeight/2 + 5);
+        
         ctx.font="bold 50px 'Ramabhadra'";
-        ctx.fillText("రామగుండం", canvas.width - 100, headerHeight/2 + 65);
+        ctx.fillText("రామగుండం", canvas.width - 100, headerHeight/2 + 80);
         
         
         /* 4. HEADLINE BAR */
@@ -201,10 +204,6 @@
         hGrad.addColorStop(0,"#0d123e");
         hGrad.addColorStop(0.5,"#1a237e");
         hGrad.addColorStop(1,"#0d123e");
-
-//        hGrad.addColorStop(0, "#8b0000");   // Dark Red (Top)
-  //      hGrad.addColorStop(0.5, "#ff0000"); // Vibrant Red (Center highlight)
-    //    hGrad.addColorStop(1, "#8b0000");   // Dark Red (Bottom)
 
         ctx.fillStyle = hGrad;
         ctx.fillRect(0, captionStart, canvas.width, headlineHeight);
@@ -219,13 +218,12 @@
         ctx.shadowBlur = 12;
         ctx.shadowColor = "rgba(0,0,0,0.8)";
         
-        let hFontSize = 110; // Start large for short text
+        let hFontSize = 110; 
         let hLineHeight = 120;
         let hLines = [];
         const hMaxWidth = canvas.width - 200;
         const hMaxTotalHeight = headlineHeight - 40;
 
-        // Loop to find best fit for Headline
         do {
             ctx.font = `bold ${hFontSize}px 'Ramabhadra'`;
             hLines = getWrappedLines(headline, hMaxWidth);
@@ -257,13 +255,12 @@
         ctx.fillStyle="#1e293b";
         ctx.textAlign="left";
 
-        let dFontSize = 55; // Increased start size for short descriptions
+        let dFontSize = 55; 
         let dLineHeight = 85;
         let dLines = [];
 
-        // Loop to find best fit for Description
         do {
-            ctx.font = `${dFontSize}px 'Ramabhadra'`;
+            ctx.font = `${dFontSize}px 'Noto Sans Telugu'`;
             dLines = getWrappedLines(description, descMaxWidth);
             if ((dLines.length * dLineHeight) <= descMaxHeight || dFontSize <= 30) break;
             dFontSize -= 1;
