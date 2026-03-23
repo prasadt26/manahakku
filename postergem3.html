@@ -166,11 +166,11 @@
         const headlineHeight = canvas.height * 0.14; 
         const captionStart = headerHeight + imageHeight;
 
-        /* 1. BACKGROUND */
+        /* 1. BACKGROUND */ 
         ctx.fillStyle="#ffffff";
         ctx.fillRect(0,0,canvas.width,canvas.height);
 
-        /* 2. MAIN IMAGE */
+        /* 2. MAIN IMAGE */ 
         ctx.drawImage(mainImage, 0, headerHeight, canvas.width, imageHeight);
 
         /* 3. HEADER */
@@ -184,11 +184,11 @@
         ctx.drawImage(logo, 60, padding, lW, lH);
 
         // HEADER TEXT (RIGHT SIDE)
-        ctx.fillStyle="#1a237e";
-        ctx.textAlign="right";
+        ctx.fillStyle="#1a237e"; 
+        ctx.textAlign="right"; 
         
         // --- NEW: ITALIC SUBTITLE ---
-        ctx.font="italic bold 35px 'Noto Sans Telugu'";
+        ctx.font="bold 35px 'Ramabhadra'";
         ctx.fillText("సమాచార పత్రిక", canvas.width - 100, headerHeight/2 - 85);
         // ----------------------------
 
@@ -260,7 +260,7 @@
         let dLines = [];
 
         do {
-            ctx.font = `${dFontSize}px 'Noto Sans Telugu'`;
+            ctx.font = `${dFontSize}px 'Ramabhadra'`;
             dLines = getWrappedLines(description, descMaxWidth);
             if ((dLines.length * dLineHeight) <= descMaxHeight || dFontSize <= 30) break;
             dFontSize -= 1;
