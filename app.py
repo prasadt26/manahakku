@@ -6,7 +6,7 @@ st.set_page_config(layout="wide")
 st.title("Mana Hakku Poster Generator")
 
 # read HTML file
-with open("postergem4.html", "r", encoding="utf-8") as f:
+with open("postergem3.html", "r", encoding="utf-8") as f:
     html = f.read()
 
 # convert logo to base64
