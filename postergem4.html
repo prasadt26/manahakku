@@ -187,16 +187,17 @@
     document.getElementById('cropModal').addEventListener('shown.bs.modal', function () {
         if (cropper) cropper.destroy();
         cropper = new Cropper(imageToCrop, {
-            aspectRatio: 16 / 9,
-            viewMode: 2,
-            autoCropArea: 1,
+            aspectRatio: NaN, // FIXED: Now allows vertical cropping
+            viewMode: 1,      // Restricts crop box to within the image
+            autoCropArea: 1,  // Starts with the whole image selected
+            dragMode: 'move', // Allows moving the image inside the box
         });
     });
 
     function applyCrop() {
-        // High quality output for the 1500px canvas
+        // We remove the hardcoded 'width: 1500' here to let the 
+        // canvas draw the image based on whatever shape you cropped.
         const croppedCanvas = cropper.getCroppedCanvas({
-            width: 1500,
             imageSmoothingEnabled: true,
             imageSmoothingQuality: 'high',
         });
