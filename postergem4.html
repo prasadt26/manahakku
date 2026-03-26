@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mana Hakku | News Poster Studio</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@300;400;700&family=Ramabhadra&family=Inter:wght@400;700&display=swap" rel="stylesheet">
@@ -57,24 +60,11 @@
             color: var(--primary-news);
             margin-bottom: 5px;
             display: block;
-            margin-top: 15px;
         }
 
-        .btn-generate {
-            background: #1a237e;
-            color: white;
-            font-weight: bold;
-            border: none;
-            padding: 12px;
-        }
-
-        .btn-download {
-            background: #c00;
-            color: white;
-            border: none;
-            padding: 12px;
-        }
-
+        .btn-generate { background: #1a237e; color: white; font-weight: bold; border: none; padding: 12px; }
+        .btn-download { background: #c00; color: white; border: none; padding: 12px; }
+        
         .char-counter {
             font-size: 0.7rem;
             color: #64748b;
@@ -91,16 +81,14 @@
             margin-bottom: 30px;
         }
 
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: #64748b;
+        /* Cropper Container Height */
+        .img-container {
+            min-height: 400px;
+            max-height: 500px;
+            width: 100%;
         }
     </style>
 </head>
-
 <body>
 
 <header class="page-header text-center">
@@ -112,21 +100,15 @@
         <div class="col-lg-4 col-xl-3">
             <div class="gradient-border-box">
                 <div class="control-panel">
-                    <label class="section-title">1. PHOTO & ADJUSTMENTS</label>
-                    <input type="file" id="imageUpload" class="form-control mb-3">
-                    
-                    <div class="slider-label"><span>Vertical Position</span><span id="posVal">50%</span></div>
-                    <input type="range" id="imageYOffset" class="form-range mb-2" min="0" max="100" value="50">
-                    
-                    <div class="slider-label"><span>Zoom</span><span id="zoomVal">1.0x</span></div>
-                    <input type="range" id="imageZoom" class="form-range mb-3" min="100" max="300" value="100">
+                    <label class="section-title">1. PHOTO (UPLOAD & EDIT)</label>
+                    <input type="file" id="imageUpload" class="form-control mb-3" accept="image/*">
 
-                    <label class="section-title">2. HEADLINE (AUTO-SCALING)</label>
-                    <textarea id="headline" class="form-control" rows="2" placeholder="Enter headline..." maxlength="120"></textarea>
+                    <label class="section-title">2. HEADLINE</label>
+                    <textarea id="headline" class="form-control" rows="3" placeholder="Enter headline..." maxlength="120"></textarea>
                     <span id="headlineCounter" class="char-counter">0 / 120</span>
 
-                    <label class="section-title">3. DESCRIPTION (AUTO-SCALING)</label>
-                    <textarea id="description" rows="4" class="form-control" placeholder="Write news content..." maxlength="1000"></textarea>
+                    <label class="section-title">3. DESCRIPTION</label>
+                    <textarea id="description" rows="5" class="form-control" placeholder="Write news content..." maxlength="1000"></textarea>
                     <span id="descriptionCounter" class="char-counter">0 / 1000</span>
 
                     <label class="section-title">4. DATE</label>
@@ -144,61 +126,97 @@
     </div>
 </div>
 
+<div class="modal fade" id="cropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adjust & Crop Photo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="img-container">
+                    <img id="imageToCrop" src="">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div>
+                    <button type="button" class="btn btn-outline-dark" onclick="cropper.rotate(-90)">↺ Rotate</button>
+                    <button type="button" class="btn btn-outline-dark" onclick="cropper.rotate(90)">↻ Rotate</button>
+                </div>
+                <button type="button" class="btn btn-primary px-4" onclick="applyCrop()">Apply & Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
 <script>
     const canvas = document.getElementById("posterCanvas");
     const ctx = canvas.getContext("2d");
     const logo = new Image();
-    logo.src = "logo.png"; 
+    logo.src = "logo.png"; // Ensure this file exists in your directory
 
     const hInput = document.getElementById('headline');
     const dInput = document.getElementById('description');
-    const ySlider = document.getElementById('imageYOffset');
-    const zSlider = document.getElementById('imageZoom');
+    const imageUpload = document.getElementById('imageUpload');
+    const imageToCrop = document.getElementById('imageToCrop');
     
-    // UI Update Listeners
+    let cropper;
+    let croppedImageData = null;
+    const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
+
+    // Character Counters
     hInput.addEventListener('input', () => { document.getElementById('headlineCounter').textContent = `${hInput.value.length} / 120`; });
     dInput.addEventListener('input', () => { document.getElementById('descriptionCounter').textContent = `${dInput.value.length} / 1000`; });
-    
-    // Live update on slider move
-    ySlider.addEventListener('input', () => { 
-        document.getElementById('posVal').textContent = ySlider.value + "%";
-        generatePoster(); 
-    });
-    zSlider.addEventListener('input', () => { 
-        document.getElementById('zoomVal').textContent = (zSlider.value / 100).toFixed(1) + "x";
-        generatePoster(); 
-    });
 
-    let currentMainImage = null;
-
-    function generatePoster(){
-        const imageFile = document.getElementById("imageUpload").files[0];
-        
-        // If we already have an image loaded, we don't need to read the file again
-        if (currentMainImage && !imageFile) {
-            drawPoster(currentMainImage);
-            return;
-        }
-
-        if(!imageFile) { alert("Please upload an image!"); return; }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const mainImage = new Image();
-            mainImage.src = e.target.result;
-            mainImage.onload = () => {
-                currentMainImage = mainImage;
-                drawPoster(mainImage);
+    // Handle Image Upload -> Show Cropper
+    imageUpload.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                imageToCrop.src = event.target.result;
+                cropModal.show();
             };
-        };
-        reader.readAsDataURL(imageFile);
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    // Initialize Cropper when modal shows
+    document.getElementById('cropModal').addEventListener('shown.bs.modal', function () {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(imageToCrop, {
+            aspectRatio: 16 / 9,
+            viewMode: 2,
+            autoCropArea: 1,
+        });
+    });
+
+    function applyCrop() {
+        // High quality output for the 1500px canvas
+        const croppedCanvas = cropper.getCroppedCanvas({
+            width: 1500,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+        croppedImageData = croppedCanvas.toDataURL('image/jpeg', 0.9);
+        cropModal.hide();
     }
 
-    function drawPoster(mainImage){
+    function generatePoster() {
+        if(!croppedImageData) { alert("Please upload and crop an image first!"); return; }
+        
         const headline = hInput.value || "Headline Here";
-        const description = dInput.value || "Description text goes here...";
+        const description = dInput.value || "Content goes here...";
         let dateValue = document.getElementById("dateInput").value || new Date().toLocaleDateString("en-IN");
 
+        const mainImage = new Image();
+        mainImage.src = croppedImageData;
+        mainImage.onload = () => drawPoster(mainImage, headline, description, dateValue);
+    }
+
+    function drawPoster(mainImage, headline, description, dateValue) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const headerHeight = canvas.height * 0.12;
@@ -206,74 +224,47 @@
         const headlineHeight = canvas.height * 0.14; 
         const captionStart = headerHeight + imageHeight;
 
-        /* 1. BACKGROUND */ 
-        ctx.fillStyle="#ffffff";
-        ctx.fillRect(0,0,canvas.width,canvas.height);
+        // 1. BACKGROUND
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        /* 2. IMAGE ADJUSTMENT LOGIC (CROP/ZOOM/SCALE) */
-        const zoom = zSlider.value / 100;
-        const yOffsetPercent = ySlider.value / 100;
+        // 2. MAIN IMAGE (Uses Cropped Version)
+        ctx.drawImage(mainImage, 0, headerHeight, canvas.width, imageHeight);
 
-        const imgAspect = mainImage.width / mainImage.height;
-        const canvasAspect = canvas.width / imageHeight;
-
-        let renderWidth, renderHeight, offsetX, offsetY;
-
-        // Base Scale (Cover)
-        if (imgAspect > canvasAspect) {
-            renderHeight = imageHeight * zoom;
-            renderWidth = (mainImage.width * (imageHeight / mainImage.height)) * zoom;
-        } else {
-            renderWidth = canvas.width * zoom;
-            renderHeight = (mainImage.height * (canvas.width / mainImage.width)) * zoom;
-        }
-
-        // Center Horizontally
-        offsetX = (canvas.width - renderWidth) / 2;
-        // Vertical Position based on slider
-        offsetY = (imageHeight - renderHeight) * yOffsetPercent;
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(0, headerHeight, canvas.width, imageHeight); // Define the "frame"
-        ctx.clip(); // Ensure image doesn't leak out
-        ctx.drawImage(mainImage, offsetX, headerHeight + offsetY, renderWidth, renderHeight);
-        ctx.restore();
-
-        /* 3. HEADER */
+        // 3. HEADER
         ctx.fillStyle = "#fcec53"; 
         ctx.fillRect(0, 0, canvas.width, headerHeight);
 
-        const padding = 20; 
-        const lW = canvas.width * 0.50; 
-        const lH = headerHeight - (padding * 2); 
-        ctx.drawImage(logo, 60, padding, lW, lH);
+        // LOGO (Draws if loaded)
+        try {
+            const padding = 20; 
+            const lW = canvas.width * 0.50; 
+            const lH = headerHeight - (padding * 2); 
+            ctx.drawImage(logo, 60, padding, lW, lH);
+        } catch(e) {}
 
-        ctx.fillStyle="#1a237e"; 
-        ctx.textAlign="right"; 
-        
-        ctx.font="bold 35px 'Ramabhadra'";
+        // HEADER TEXT
+        ctx.fillStyle = "#1a237e"; 
+        ctx.textAlign = "right"; 
+        ctx.font = "bold 35px 'Ramabhadra'";
         ctx.fillText("సమాచార పత్రిక", canvas.width - 100, headerHeight/2 - 85);
-
-        ctx.font="bold 40px 'Ramabhadra'";
+        ctx.font = "bold 40px 'Ramabhadra'";
         ctx.fillText(dateValue, canvas.width - 100, headerHeight/2 + 5);
-        
-        ctx.font="bold 50px 'Ramabhadra'";
+        ctx.font = "bold 50px 'Ramabhadra'";
         ctx.fillText("రామగుండం", canvas.width - 100, headerHeight/2 + 80);
-        
-        /* 4. HEADLINE BAR */
+
+        // 4. HEADLINE BAR
         const hGrad = ctx.createLinearGradient(0, captionStart, 0, captionStart + headlineHeight);
         hGrad.addColorStop(0,"#0d123e");
         hGrad.addColorStop(0.5,"#1a237e");
         hGrad.addColorStop(1,"#0d123e");
-
         ctx.fillStyle = hGrad;
         ctx.fillRect(0, captionStart, canvas.width, headlineHeight);
         ctx.fillStyle = "#d4af37";
         ctx.fillRect(0, captionStart, canvas.width, 8); 
         ctx.fillRect(0, captionStart + headlineHeight - 8, canvas.width, 8);
 
-        /* 5. DYNAMIC HEADLINE */
+        // 5. DYNAMIC HEADLINE
         ctx.fillStyle = "#ffffff";
         ctx.textAlign = "center";
         ctx.shadowBlur = 12;
@@ -283,11 +274,12 @@
         let hLineHeight = 120;
         let hLines = [];
         const hMaxWidth = canvas.width - 200;
+        const hMaxTotalHeight = headlineHeight - 40;
 
         do {
             ctx.font = `bold ${hFontSize}px 'Ramabhadra'`;
             hLines = getWrappedLines(headline, hMaxWidth);
-            if ((hLines.length * hLineHeight) <= (headlineHeight - 40) || hFontSize <= 65) break;
+            if ((hLines.length * hLineHeight) <= hMaxTotalHeight || hFontSize <= 65) break;
             hFontSize -= 2;
             hLineHeight -= 2.2;
         } while (hFontSize > 65);
@@ -299,7 +291,7 @@
         });
         ctx.shadowBlur = 0;
 
-        /* 6. DESCRIPTION */
+        // 6. DESCRIPTION
         const descStart = captionStart + headlineHeight;
         const descPadding = 100;
         const descMaxHeight = (canvas.height - descStart) - 180;
@@ -307,11 +299,11 @@
 
         ctx.fillStyle = "#f8fafc";
         ctx.fillRect(0, descStart, canvas.width, canvas.height - descStart);
-        ctx.fillStyle="#c00"; 
+        ctx.fillStyle = "#c00"; 
         ctx.fillRect(descPadding, descStart + 60, 200, 12);
 
-        ctx.fillStyle="#1e293b";
-        ctx.textAlign="left";
+        ctx.fillStyle = "#1e293b";
+        ctx.textAlign = "left";
 
         let dFontSize = 55; 
         let dLineHeight = 85;
@@ -331,16 +323,15 @@
             dStartY += dLineHeight;
         });
 
-        /* 7. WATERMARK */
-        ctx.save();
-        ctx.globalAlpha=0.04;
-        ctx.font="bold 220px 'Ramabhadra'";
-        ctx.fillStyle="#000";
-        ctx.textAlign="center";
+        // 7. WATERMARK
+        ctx.globalAlpha = 0.04;
+        ctx.font = "bold 220px 'Ramabhadra'";
+        ctx.fillStyle = "#000";
+        ctx.textAlign = "center";
         ctx.fillText("మన హక్కు", canvas.width/2, canvas.height * 0.88);
-        ctx.restore();
+        ctx.globalAlpha = 1;
 
-        /* 8. BORDER */
+        // 8. GOLD BORDER
         const bGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
         bGrad.addColorStop(0, "#8a6d3b");
         bGrad.addColorStop(0.5, "#d4af37");
@@ -355,7 +346,6 @@
         const words = text.split(" ");
         let lines = [];
         let currentLine = "";
-
         for (let n = 0; n < words.length; n++) {
             let testLine = currentLine + words[n] + " ";
             if (ctx.measureText(testLine).width > maxWidth && n > 0) {
@@ -369,7 +359,7 @@
         return lines;
     }
 
-    function downloadPoster(){
+    function downloadPoster() {
         const link = document.createElement('a');
         link.download = `ManaHakku_${Date.now()}.png`;
         link.href = canvas.toDataURL('image/png', 1.0);
