@@ -300,8 +300,8 @@
 
         ctx.fillStyle = "#f8fafc";
         ctx.fillRect(0, descStart, canvas.width, canvas.height - descStart);
-        ctx.fillStyle = "#c00"; 
-        ctx.fillRect(descPadding, descStart + 60, 200, 12);
+        //ctx.fillStyle = "#c00"; 
+        //ctx.fillRect(descPadding, descStart + 60, 200, 12);
 
         ctx.fillStyle = "#1e293b";
         ctx.textAlign = "left";
@@ -324,7 +324,7 @@
             dStartY += dLineHeight;
         });
 
-        // 7. WATERMARK
+// 7. WATERMARK (Existing code)
         ctx.globalAlpha = 0.04;
         ctx.font = "bold 220px 'Ramabhadra'";
         ctx.fillStyle = "#000";
@@ -332,15 +332,29 @@
         ctx.fillText("మన హక్కు", canvas.width/2, canvas.height * 0.88);
         ctx.globalAlpha = 1;
 
-        // 8. GOLD BORDER
+// --- NEW: SINGLE LINE REPORTER SECTION ---
+        ctx.textAlign = "right";
+        const reporterText = "✍️ IMH : MD & Editor ✍️ 🔴 వడ్లకొండ మహేందర్ గౌడ్ 🔴";
+        
+        // Using 55px to match the description font size
+        ctx.font = "bold 25px 'Ramabhadra'"; 
+        
+        // Draw Shadow/Glow for readability (optional)
+        ctx.fillStyle = "#1e293b"; // Dark blue-grey to match professional tone
+        ctx.fillText(reporterText, canvas.width - 40, canvas.height - 40);
+        
+        // Reset alignment for any future draws
+        ctx.textAlign = "left";
+        // -----------------------------------------
+
+        // 8. GOLD BORDER (Existing code)
         const bGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
         bGrad.addColorStop(0, "#8a6d3b");
         bGrad.addColorStop(0.5, "#d4af37");
         bGrad.addColorStop(1, "#1a237e");
         ctx.strokeStyle = bGrad;
         ctx.lineWidth = 18; 
-        ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, canvas.width - ctx.lineWidth, canvas.height - ctx.lineWidth);
-    }
+        ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, canvas.width - ctx.lineWidth, canvas.height - ctx.lineWidth);    }
 
     function getWrappedLines(text, maxWidth) {
         if (!text) return [""];
