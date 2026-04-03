@@ -379,13 +379,29 @@ function saveNewsId() {
         ctx.fillText("మన హక్కు", canvas.width/2, canvas.height * 0.88);
         ctx.globalAlpha = 1;
 
-        // Footer Reporter
+        // --- Footer Reporter: Absolute Right Corner ---
         ctx.textAlign = "right";
-        ctx.fillStyle = "#1e293b"; 
-        ctx.font = "bold 25px 'Ramabhadra'"; 
-        const reporterText = "✍️ IMH : MD & Editor ✍️ 🔴 వడ్లకొండ మహేందర్ గౌడ్ 🔴";
-        ctx.fillText(reporterText, canvas.width - 40, canvas.height - 40);
+        ctx.fillStyle = "#1a237e";
 
+        // Reduce padding to 30 for "Corner" placement
+        const paddingRight = 30; 
+        const bottomY = canvas.height - 50; 
+
+        // 1. Draw Telugu Name (Larger) - This sits at the very edge
+        ctx.font = "bold 30px 'Ramabhadra'";
+        const teluguText = "వడ్లకొండ మహేందర్ గౌడ్ 🔴";
+        ctx.fillText(teluguText, canvas.width - paddingRight, bottomY);
+
+        // 2. Measure the Telugu width to place English behind it
+        const teluguWidth = ctx.measureText(teluguText).width;
+
+        // 3. Draw English Title (Smaller)
+        ctx.font = "bold 25px 'Ramabhadra'";
+        const englishText = "✍️ IMH : MD & Editor ✍️ 🔴";
+
+        // Position English to the left of the Telugu text
+        const englishX = canvas.width - paddingRight - teluguWidth - 15;
+        ctx.fillText(englishText, englishX, bottomY);
         // Border
         const bGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
         bGrad.addColorStop(0, "#8a6d3b");
