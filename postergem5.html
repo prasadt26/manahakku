@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mana Hakku | News Poster Studio</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@300;400;700&family=Ramabhadra&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-news: #1a237e; 
+            --gold-premium: #d4af37;
+            --dark-bg: #0f172a;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+            font-family: 'Inter', 'Noto Sans Telugu', sans-serif;
+            min-height: 100vh;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .gradient-border-box {
+            padding: 3px;
+            background: linear-gradient(60deg, #1a237e, #d4af37, #c00, #1a237e);
+            background-size: 300% 300%;
+            animation: moveGradient 4s alternate infinite;
+            border-radius: 22px;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--primary-news);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .btn-generate { background: #1a237e; color: white; font-weight: bold; border: none; padding: 12px; }
+        .btn-save-id { background: #198754; color: white; font-weight: bold; border: none; padding: 12px; }
+        .btn-download { background: #c00; color: white; border: none; padding: 12px; }
+        
+        .char-counter {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-align: right;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .id-badge {
+            background: #fff3cd;
+            color: #856404;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border: 1px solid #ffeeba;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .page-header {
+            background: #0f172a;
+            padding: 15px;
+            color: white;
+            border-bottom: 4px solid #d4af37;
+            margin-bottom: 30px;
+        }
+
+        .img-container {
+            min-height: 400px;
+            max-height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<header class="page-header text-center">
+    <h2 class="mb-0" style="font-family: 'Ramabhadra';">మన హక్కు <span style="font-weight: 300; font-size: 1.2rem; color: #d4af37;">Poster Studio</span></h2>
+</header>
+
+<div class="container-fluid px-4 pb-5">
+    <div class="row">
+        <div class="col-lg-4 col-xl-3">
+            <div class="gradient-border-box">
+                <div class="control-panel">
+                    <div class="text-center">
+                        <span class="id-badge">Current News ID: <span id="displayID">LOADING...</span></span>
+                    </div>
+
+                    <label class="section-title">1. PHOTO (UPLOAD & EDIT)</label>
+                    <input type="file" id="imageUpload" class="form-control mb-3" accept="image/*">
+
+                    <label class="section-title">2. HEADLINE</label>
+                    <textarea id="headline" class="form-control" rows="3" placeholder="Enter headline..." maxlength="120"></textarea>
+                    <span id="headlineCounter" class="char-counter">0 / 120</span>
+
+                    <label class="section-title">3. DESCRIPTION</label>
+                    <textarea id="description" rows="5" class="form-control" placeholder="Write news content..." maxlength="1000"></textarea>
+                    <span id="descriptionCounter" class="char-counter">0 / 1000</span>
+
+                    <label class="section-title">4. DATE</label>
+                    <input type="date" id="dateInput" class="form-control mb-4">
+
+                    <button class="btn btn-generate w-100 mb-2" onclick="generatePoster()">PREVIEW POSTER</button>
+                    <button class="btn btn-download w-100" onclick="downloadPoster()">DOWNLOAD PNG</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-xl-9 text-center">
+            <canvas id="posterCanvas" width="1500" height="2600"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adjust & Crop Photo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="img-container">
+                    <img id="imageToCrop" src="">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div>
+                    <button type="button" class="btn btn-outline-dark" onclick="cropper.rotate(-90)">↺ Rotate</button>
+                    <button type="button" class="btn btn-outline-dark" onclick="cropper.rotate(90)">↻ Rotate</button>
+                </div>
+                <button type="button" class="btn btn-primary px-4" onclick="applyCrop()">Apply & Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+    const canvas = document.getElementById("posterCanvas");
+    const ctx = canvas.getContext("2d");
+    const logo = new Image();
+    logo.src = "logo.png"; // Python will replace this line
+
+    const hInput = document.getElementById('headline');
+    const dInput = document.getElementById('description');
+    const imageUpload = document.getElementById('imageUpload');
+    const imageToCrop = document.getElementById('imageToCrop');
+    
+    let cropper;
+    let croppedImageData = null;
+    const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
+
+    // --- ID Counter Setup ---
+    // Python injects the actual ID into the line below
+    let activeID = parseInt(localStorage.getItem('newsCounter')) || 35;
+
+    const updateIDDisplay = () => {
+        document.getElementById('displayID').textContent = `IMH-2026-${String(activeID).padStart(3, '0')}`;
+    };
+    updateIDDisplay();
+
+    // Counters
+    hInput.addEventListener('input', () => { document.getElementById('headlineCounter').textContent = `${hInput.value.length} / 120`; });
+    dInput.addEventListener('input', () => { document.getElementById('descriptionCounter').textContent = `${dInput.value.length} / 1000`; });
+
+    // Image Upload Logic
+    imageUpload.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                imageToCrop.src = event.target.result;
+                cropModal.show();
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    document.getElementById('cropModal').addEventListener('shown.bs.modal', function () {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(imageToCrop, {
+            aspectRatio: NaN,
+            viewMode: 1,
+            autoCropArea: 1,
+            dragMode: 'move',
+        });
+    });
+
+    function applyCrop() {
+        const croppedCanvas = cropper.getCroppedCanvas({
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+        croppedImageData = croppedCanvas.toDataURL('image/jpeg', 0.9);
+        cropModal.hide();
+    }
+
+    // Generate Preview
+    function generatePoster() {
+        if(!croppedImageData) { alert("Please upload and crop an image first!"); return; }
+        
+        const headline = hInput.value || "Headline Here";
+        const description = dInput.value || "Content goes here...";
+        let dateValue = document.getElementById("dateInput").value || new Date().toLocaleDateString("en-IN");
+
+        const mainImage = new Image();
+        mainImage.src = croppedImageData;
+        mainImage.onload = () => drawPoster(mainImage, headline, description, dateValue, activeID);
+    }
+
+function saveNewsId() {
+    const formattedID = String(activeID).padStart(3, '0');
+    
+    // 1. Show a message to the user
+    alert(`POSTER READY: ID IMH-2026-${formattedID}\n\nTo lock this ID into the database, please scroll to the VERY TOP of the page and click the red "SAVE & LOCK THIS ID" button.`);
+    
+    // 2. Automatically scroll the parent window to the top so they see the button
+    window.parent.scrollTo({top: 0, behavior: 'smooth'});
+}
+    function drawPoster(mainImage, headline, description, dateValue, currentID) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const headerHeight = canvas.height * 0.12;
+        const imageHeight = canvas.height * 0.45;
+        const headlineHeight = canvas.height * 0.14; 
+        const captionStart = headerHeight + imageHeight;
+
+        // Background
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Photo
+        ctx.drawImage(mainImage, 0, headerHeight, canvas.width, imageHeight);
+
+        // Header Yellow Bar
+        ctx.fillStyle = "#fcec53"; 
+        ctx.fillRect(0, 0, canvas.width, headerHeight);
+
+        // Logo Placement
+        try {
+            const padding = 20; 
+            const lW = canvas.width * 0.50; 
+            const lH = headerHeight - (padding * 2); 
+            ctx.drawImage(logo, 60, padding, lW, lH);
+        } catch(e) {}
+
+        // Header Text
+        ctx.fillStyle = "#1a237e"; 
+        ctx.textAlign = "right"; 
+        ctx.font = "bold 35px 'Ramabhadra'";
+        ctx.fillText("సమాచార పత్రిక", canvas.width - 100, headerHeight/2 - 85);
+        ctx.font = "bold 40px 'Ramabhadra'";
+        ctx.fillText(dateValue, canvas.width - 100, headerHeight/2 + 5);
+        ctx.font = "bold 50px 'Ramabhadra'";
+        ctx.fillText("రామగుండం", canvas.width - 100, headerHeight/2 + 80);
+
+        // Headline Blue Bar
+        const hGrad = ctx.createLinearGradient(0, captionStart, 0, captionStart + headlineHeight);
+        hGrad.addColorStop(0,"#0d123e");
+        hGrad.addColorStop(0.5,"#1a237e");
+        hGrad.addColorStop(1,"#0d123e");
+        ctx.fillStyle = hGrad;
+        ctx.fillRect(0, captionStart, canvas.width, headlineHeight);
+        ctx.fillStyle = "#d4af37";
+        ctx.fillRect(0, captionStart, canvas.width, 8); 
+        ctx.fillRect(0, captionStart + headlineHeight - 8, canvas.width, 8);
+
+        // Headline Text
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = "rgba(0,0,0,0.8)";
+        
+        let hFontSize = 110; 
+        let hLineHeight = 120;
+        let hLines = [];
+        const hMaxWidth = canvas.width - 200;
+        const hMaxTotalHeight = headlineHeight - 40;
+
+        do {
+            ctx.font = `bold ${hFontSize}px 'Ramabhadra'`;
+            hLines = getWrappedLines(headline, hMaxWidth);
+            if ((hLines.length * hLineHeight) <= hMaxTotalHeight || hFontSize <= 65) break;
+            hFontSize -= 2;
+            hLineHeight -= 2.2;
+        } while (hFontSize > 65);
+
+        let hStartY = captionStart + (headlineHeight / 2) - ((hLines.length * hLineHeight) / 2) + (hFontSize * 0.8);
+        hLines.forEach((line) => {
+            ctx.fillText(line, canvas.width/2, hStartY);
+            hStartY += hLineHeight;
+        });
+        ctx.shadowBlur = 0;
+
+        // Description Section
+        const descStart = captionStart + headlineHeight;
+        const descPadding = 100;
+        const descMaxHeight = (canvas.height - descStart) - 180;
+        const descMaxWidth = canvas.width - (descPadding * 2);
+
+        ctx.fillStyle = "#f8fafc";
+        ctx.fillRect(0, descStart, canvas.width, canvas.height - descStart);
+
+        // Location & ID
+        ctx.textAlign = "left";
+        ctx.font = "bold 25px 'Ramabhadra'";
+        ctx.fillStyle = "#c00"; 
+        const infoLine = `📍 రామగుండం  |  🆔 News No: IMH-2026-${String(currentID).padStart(3, '0')}`;
+        
+        // Changed 'descPadding' to 50 for a "tighter" left corner
+        // EXPLANATION OF CHANGES:
+        // X = 35 (Moves it closer to the left gold border)
+        // Y = descStart + 45 (Moves it higher up toward the blue headline bar)
+        ctx.fillText(infoLine, 35, descStart + 45);
+
+        // Description Text
+        // --- Updated Description Section ---
+        ctx.fillStyle = "#1e293b"; // Dark text color
+        let dFontSize = 55; 
+        let dLineHeight = 85;
+        let dLines = [];
+
+        // Redefine coordinates for "Top Left" start
+        const contentStartX = 40; // Align almost with the ID line (Left)
+        const contentStartY = descStart + 120; // Start higher up (Top)
+        const contentMaxWidth = canvas.width - 80; // Wider text area
+
+        do {
+            ctx.font = `${dFontSize}px 'Ramabhadra'`;
+            dLines = getWrappedLines(description, contentMaxWidth);
+            // Increased available height check to allow more text
+            if ((dLines.length * dLineHeight) <= (canvas.height - contentStartY - 100) || dFontSize <= 30) break;
+            dFontSize -= 1;
+            dLineHeight -= 1.5;
+        } while (dFontSize > 25);
+
+        let dCurrentY = contentStartY; 
+        dLines.forEach(line => {
+            ctx.fillText(line, contentStartX, dCurrentY);
+            dCurrentY += dLineHeight;
+        });
+        // Watermark
+        ctx.globalAlpha = 0.04;
+        ctx.font = "bold 220px 'Ramabhadra'";
+        ctx.fillStyle = "#000";
+        ctx.textAlign = "center";
+        ctx.fillText("మన హక్కు", canvas.width/2, canvas.height * 0.88);
+        ctx.globalAlpha = 1;
+
+        // Footer Reporter
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#1e293b"; 
+        ctx.font = "bold 25px 'Ramabhadra'"; 
+        const reporterText = "✍️ IMH : MD & Editor ✍️ 🔴 వడ్లకొండ మహేందర్ గౌడ్ 🔴";
+        ctx.fillText(reporterText, canvas.width - 40, canvas.height - 40);
+
+        // Border
+        const bGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        bGrad.addColorStop(0, "#8a6d3b");
+        bGrad.addColorStop(0.5, "#d4af37");
+        bGrad.addColorStop(1, "#1a237e");
+        ctx.strokeStyle = bGrad;
+        ctx.lineWidth = 18; 
+        ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, canvas.width - ctx.lineWidth, canvas.height - ctx.lineWidth);
+    }
+
+    function getWrappedLines(text, maxWidth) {
+        if (!text) return [""];
+        const words = text.split(" ");
+        let lines = [];
+        let currentLine = "";
+        for (let n = 0; n < words.length; n++) {
+            let testLine = currentLine + words[n] + " ";
+            if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                lines.push(currentLine.trim());
+                currentLine = words[n] + " ";
+            } else {
+                currentLine = testLine;
+            }
+        }
+        lines.push(currentLine.trim());
+        return lines;
+    }
+
+    function downloadPoster() {
+        const link = document.createElement('a');
+        link.download = `ManaHakku_News_${activeID}.png`;
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+    }
+</script>
+
+</body>
+</html>
