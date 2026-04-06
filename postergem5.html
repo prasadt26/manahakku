@@ -335,7 +335,7 @@ function saveNewsId() {
 
         // Location & ID
         ctx.textAlign = "left";
-        ctx.font = "bold 25px 'Ramabhadra'";
+        ctx.font = "bold 30px 'Ramabhadra'";
         ctx.fillStyle = "#c00"; 
         const infoLine = `📍 రామగుండం  |  🆔 News No: IMH-2026-${String(currentID).padStart(3, '0')}`;
         
@@ -388,7 +388,7 @@ function saveNewsId() {
         const bottomY = canvas.height - 50; 
 
         // 1. Draw Telugu Name (Larger) - This sits at the very edge
-        ctx.font = "bold 30px 'Ramabhadra'";
+        ctx.font = "bold 35px 'Ramabhadra'";
         const teluguText = "వడ్లకొండ మహేందర్ గౌడ్ 🔴";
         ctx.fillText(teluguText, canvas.width - paddingRight, bottomY);
 
@@ -396,7 +396,7 @@ function saveNewsId() {
         const teluguWidth = ctx.measureText(teluguText).width;
 
         // 3. Draw English Title (Smaller)
-        ctx.font = "bold 25px 'Ramabhadra'";
+        ctx.font = "bold 30px 'Ramabhadra'";
         const englishText = "✍️ IMH : MD & Editor ✍️ 🔴";
 
         // Position English to the left of the Telugu text
