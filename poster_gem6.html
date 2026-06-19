@@ -430,7 +430,7 @@ function saveNewsId() {
 
         // 1. Draw Telugu Name (Larger)
         ctx.font = "bold 35px 'Ramabhadra'";
-        const teluguText = "వడ్లకొండ మహేందర్ గౌడ్ 🔴";
+        const teluguText = "వడ్లకొండ మహేందర్ గౌడ్🔴";
         ctx.fillText(teluguText, canvas.width - paddingRight, bottomY);
 
         // 2. Measure the Telugu width to place English behind it
@@ -438,7 +438,7 @@ function saveNewsId() {
 
         // 3. Draw English Title (Smaller)
         ctx.font = "bold 30px 'Ramabhadra'";
-        const englishText = "✍️ IMH : MD & Editor ✍️ 🔴";
+        const englishText = "✍️IMH:MD & Editor✍️🔴";
 
         // Position English to the left of the Telugu text
         const englishX = canvas.width - paddingRight - teluguWidth - 15;
