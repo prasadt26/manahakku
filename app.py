@@ -41,7 +41,7 @@ with col2:
         st.rerun()
 
 # --- PREPARE HTML ---
-with open("postergem5.html", "r", encoding="utf-8") as f:
+with open("poster_gem6.html", "r", encoding="utf-8") as f:
     html_content = f.read()
 
 # Logo injection
