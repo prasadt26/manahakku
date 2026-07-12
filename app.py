@@ -30,6 +30,19 @@ active_id = last_id + 1
 
 st.title("Mana Hakku Poster Studio")
 
+poster_file = "poster_gem6.html"
+logo_file = "logo.png"
+# --- BREAKING NEWS FEATURE (delete this block to remove) ---
+poster_type = st.radio(
+    "Poster Type",
+    ["📰 Standard News", "⚡ Breaking News"],
+    horizontal=True,
+)
+if poster_type == "⚡ Breaking News":
+    poster_file = os.path.join("breaking_news", "breaking_news.html")
+    logo_file = os.path.join("breaking_news", "Final_Logo.png")
+# --- END BREAKING NEWS FEATURE ---
+
 # THE EXPLICIT BUTTON
 # This is a NATIVE Streamlit button. It is 100% reliable.
 col1, col2 = st.columns([2, 1])
@@ -41,12 +54,12 @@ with col2:
         st.rerun()
 
 # --- PREPARE HTML ---
-with open("poster_gem6.html", "r", encoding="utf-8") as f:
+with open(poster_file, "r", encoding="utf-8") as f:
     html_content = f.read()
 
 # Logo injection
-if os.path.exists("logo.png"):
-    with open("logo.png", "rb") as img:
+if os.path.exists(logo_file):
+    with open(logo_file, "rb") as img:
         logo_base = base64.b64encode(img.read()).decode()
     html_content = html_content.replace('logo.src = "logo.png";', f'logo.src = "data:image/png;base64,{logo_base}";')
 

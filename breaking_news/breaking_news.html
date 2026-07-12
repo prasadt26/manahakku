@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mana Hakku | Breaking News Poster</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@300;400;700;800&family=Ramabhadra&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --tv-navy: #0b1030;
+            --tv-navy2: #141a44;
+            --breaking-red: #d10a11;
+            --gold-premium: #e8b93b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            font-family: 'Inter', 'Noto Sans Telugu', sans-serif;
+            min-height: 100vh;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        }
+
+        .gradient-border-box {
+            padding: 3px;
+            background: linear-gradient(60deg, #d10a11, #e8b93b, #141a44, #d10a11);
+            background-size: 300% 300%;
+            animation: moveGradient 4s alternate infinite;
+            border-radius: 22px;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--tv-navy);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .btn-generate { background: #141a44; color: white; font-weight: bold; border: none; padding: 12px; }
+        .btn-download { background: #d10a11; color: white; border: none; padding: 12px; font-weight: bold; }
+
+        .char-counter {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-align: right;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .id-badge {
+            background: #fff3cd;
+            color: #856404;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border: 1px solid #ffeeba;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .breaking-pill {
+            background: var(--breaking-red);
+            color: #fff;
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-weight: 900;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            display: inline-block;
+            margin-left: 6px;
+        }
+
+        .page-header {
+            background: #0b1030;
+            padding: 15px;
+            color: white;
+            border-bottom: 4px solid #d10a11;
+            margin-bottom: 30px;
+        }
+
+        .img-container {
+            min-height: 400px;
+            max-height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<header class="page-header text-center">
+    <h2 class="mb-0" style="font-family: 'Ramabhadra';">మన హక్కు
+        <span style="font-weight: 300; font-size: 1.2rem; color: #e8b93b;">TV News Studio</span>
+        <span class="breaking-pill">● BREAKING</span>
+    </h2>
+</header>
+
+<div class="container-fluid px-4 pb-5">
+    <div class="row">
+        <div class="col-lg-4 col-xl-3">
+            <div class="gradient-border-box">
+                <div class="control-panel">
+                    <div class="text-center">
+                        <span class="id-badge">Current News ID: <span id="displayID">LOADING...</span></span>
+                    </div>
+
+                    <label class="section-title">1. PHOTO (UPLOAD & EDIT)</label>
+                    <input type="file" id="imageUpload" class="form-control mb-3" accept="image/*">
+
+                    <label class="section-title">2. FULL HEADLINE</label>
+                    <textarea id="headline" class="form-control" rows="4" placeholder="Enter the full breaking headline..." maxlength="180"></textarea>
+                    <span id="headlineCounter" class="char-counter">0 / 180</span>
+
+                    <label class="section-title">3. DATE</label>
+                    <input type="date" id="dateInput" class="form-control mb-3">
+
+                    <label class="section-title">4. POSTER STYLE</label>
+                    <div class="mb-4">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="posterStyle" id="styleLower" value="lowerthird" checked>
+                        <label class="form-check-label" for="styleLower">TV Lower-Third <small class="text-muted">(image + headline band)</small></label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="posterStyle" id="styleFull" value="fullbleed">
+                        <label class="form-check-label" for="styleFull">Full-Bleed Dramatic <small class="text-muted">(headline over photo)</small></label>
+                      </div>
+                    </div>
+
+                    <button class="btn btn-generate w-100 mb-2" onclick="generatePoster()">PREVIEW POSTER</button>
+                    <button class="btn btn-download w-100" onclick="downloadPoster()">DOWNLOAD PNG</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-xl-9 text-center">
+            <canvas id="posterCanvas" width="1500" height="1900"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adjust & Crop Photo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="img-container">
+                    <img id="imageToCrop" src="">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div>
+                    <button type="button" class="btn btn-outline-dark" onclick="cropper.rotate(-90)">↺ Rotate</button>
+                    <button type="button" class="btn btn-outline-dark" onclick="cropper.rotate(90)">↻ Rotate</button>
+                </div>
+                <button type="button" class="btn btn-primary px-4" onclick="applyCrop()">Apply & Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+    const canvas = document.getElementById("posterCanvas");
+    const ctx = canvas.getContext("2d");
+    const logo = new Image();
+    logo.src = "logo.png"; // Python will replace this line
+
+    // Brand Assets prepared via high-resolution, pixel-perfect Vector Embeds
+    const imgFB = new Image();
+    imgFB.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231877F2'><path d='M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z'/></svg>";
+
+    const imgIG = new Image();
+    imgIG.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23E4405F'><path d='M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z'/></svg>";
+
+    const imgWA = new Image();
+    imgWA.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325D366'><path d='M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.455L0 24zm6.59-3.559c1.649.979 3.26 1.492 4.905 1.493 5.398 0 9.794-4.397 9.797-9.798a9.71 9.71 0 0 0-2.87-6.932 9.74 9.74 0 0 0-6.923-2.866c-5.399 0-9.796 4.399-9.8 9.801a9.745 9.745 0 0 0 1.493 4.916l-.995 3.635 3.73-.978zM16.582 13.5c-.272-.136-1.611-.795-1.86-.886-.25-.092-.432-.136-.613.136-.182.273-.705.886-.864 1.068-.159.182-.318.205-.59.069-.272-.136-1.15-.424-2.19-1.353-.809-.722-1.354-1.616-1.513-1.888-.159-.273-.017-.42.119-.556.123-.122.272-.318.409-.477.136-.159.182-.272.272-.454.091-.181.046-.34-.023-.477-.069-.136-.613-1.477-.839-2.023-.22-.531-.44-.459-.613-.468-.159-.008-.341-.01-.523-.01s-.477.068-.727.34c-.25.272-.954.932-.954 2.272s.977 2.636 1.114 2.818c.136.182 1.92 2.931 4.653 4.113.65.28 1.157.447 1.553.573.654.208 1.248.178 1.717.108.523-.078 1.611-.659 1.839-1.295.227-.636.227-1.182.159-1.295-.069-.114-.249-.182-.522-.318z'/></svg>";
+
+    const imgYT = new Image();
+    imgYT.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF0000'><path d='M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/></svg>";
+
+    const imgWeb = new Image();
+    imgWeb.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e8b93b'><path d='M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm8.854 8h-2.908c-.347-1.742-.888-3.344-1.595-4.723C18.106 4.357 19.742 5.955 20.854 8zm-5.96 0H9.106c-.309-1.644-.768-3.2-1.362-4.55C8.948 2.502 10.428 2 12 2s3.052.502 4.256 1.45c-.594 1.35-1.053 2.906-1.362 4.55zM4.054 14c-.036-.653-.054-1.32-.054-2s.018-1.347.054-2h4.048c-.033.655-.052 1.319-.052 2s.019 1.345.052 2H4.054zm.798-6c1.112-2.045 2.748-3.643 4.505-4.723-.707 1.379-1.248 2.981-1.595 4.723H4.852zM12 22c-1.572 0-3.052-.502-4.256-1.45.594-1.35 1.053-2.906 1.362-4.55h5.788c.309 1.644.768 3.2 1.362 4.55C15.052 21.498 13.572 22 12 22zm2.946-8H9.054c-.032-.652-.054-1.317-.054-2s.022-1.348.054-2h5.892c.032.652.054 1.317.054 2s-.022 1.348-.054 2zm.156 6.723c-.707 1.379-1.248 2.981-1.595 4.723-1.757-1.08-3.393-2.678-4.505-4.723h2.908zm4.246-4.723h-4.048c.033-.655.052-1.319.052-2s-.019-1.345-.052-2h4.048c.036.653.054 1.32.054 2s-.018 1.347-.054 2z'/></svg>";
+
+    const hInput = document.getElementById('headline');
+    const imageUpload = document.getElementById('imageUpload');
+    const imageToCrop = document.getElementById('imageToCrop');
+
+    let cropper;
+    let croppedImageData = null;
+    const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
+
+    // --- ID Counter Setup ---
+    let activeID = parseInt(localStorage.getItem('newsCounter')) || 35;
+
+    const updateIDDisplay = () => {
+        document.getElementById('displayID').textContent = `IMH-2026-${String(activeID).padStart(3, '0')}`;
+    };
+    updateIDDisplay();
+
+    // Counter
+    hInput.addEventListener('input', () => { document.getElementById('headlineCounter').textContent = `${hInput.value.length} / 180`; });
+
+    // Image Upload Logic
+    imageUpload.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                imageToCrop.src = event.target.result;
+                cropModal.show();
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    document.getElementById('cropModal').addEventListener('shown.bs.modal', function () {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(imageToCrop, {
+            aspectRatio: NaN,
+            viewMode: 1,
+            autoCropArea: 1,
+            dragMode: 'move',
+        });
+    });
+
+    function applyCrop() {
+        const croppedCanvas = cropper.getCroppedCanvas({
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+        croppedImageData = croppedCanvas.toDataURL('image/jpeg', 0.9);
+        cropModal.hide();
+    }
+
+    // Generate Preview
+    function generatePoster() {
+        if(!croppedImageData) { alert("Please upload and crop an image first!"); return; }
+
+        const headline = hInput.value || "Breaking Headline Here";
+        let dateValue = document.getElementById("dateInput").value || new Date().toLocaleDateString("en-IN");
+
+        const mainImage = new Image();
+        mainImage.src = croppedImageData;
+        mainImage.onload = () => drawPoster(mainImage, headline, dateValue, activeID);
+    }
+
+    // Sample the logo's own corner color so the masthead matches it (no seam).
+    // Works for any logo; falls back to white if it can't be read.
+    function getLogoBg() {
+        try {
+            if (!logo.complete || !logo.naturalWidth) return "#ffffff";
+            const t = document.createElement('canvas');
+            t.width = logo.naturalWidth;
+            t.height = logo.naturalHeight;
+            const tx = t.getContext('2d');
+            tx.drawImage(logo, 0, 0);
+            const d = tx.getImageData(3, 3, 1, 1).data;
+            if (d[3] === 0) return "#ffffff"; // transparent corner
+            return `rgb(${d[0]}, ${d[1]}, ${d[2]})`;
+        } catch (e) {
+            return "#ffffff";
+        }
+    }
+
+    // Draw a bright lightning bolt centered at (cx, cy) with height h.
+    function drawBolt(cx, cy, h, color) {
+        const w = h * 0.6;
+        const x0 = cx - w / 2, y0 = cy - h / 2;
+        ctx.save();
+        ctx.shadowColor = "rgba(0,0,0,0.35)";
+        ctx.shadowBlur = 6;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x0 + w * 0.58, y0);
+        ctx.lineTo(x0 + w * 0.05, y0 + h * 0.58);
+        ctx.lineTo(x0 + w * 0.42, y0 + h * 0.58);
+        ctx.lineTo(x0 + w * 0.28, y0 + h);
+        ctx.lineTo(x0 + w * 0.98, y0 + h * 0.38);
+        ctx.lineTo(x0 + w * 0.55, y0 + h * 0.38);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // Shrink font until the text fits inside maxWidth (single line)
+    function fitFont(text, maxWidth, startPx, weight, family) {
+        let size = startPx;
+        ctx.font = `${weight} ${size}px '${family}'`;
+        while (ctx.measureText(text).width > maxWidth && size > 12) {
+            size -= 2;
+            ctx.font = `${weight} ${size}px '${family}'`;
+        }
+        return size;
+    }
+
+    function drawLowerThird(mainImage, headline, dateValue, currentID) {
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+
+        // ---- Layout bands ----
+        const mastheadH = 260;                 // logo strip
+        const tickerH   = 235;                 // red BREAKING ticker (taller)
+        const footerH   = 100;                 // dark footer
+        const imageH    = 820;                 // large photo (bigger -> smaller headline band)
+        const tickerTop = mastheadH;
+        const imageTop  = mastheadH + tickerH;
+        const headTop   = imageTop + imageH;
+        const headH     = (H - footerH) - headTop;   // headline band fills the rest
+
+        // ===== Base background (dark navy) =====
+        const bg = ctx.createLinearGradient(0, 0, 0, H);
+        bg.addColorStop(0, "#141a44");
+        bg.addColorStop(1, "#0b1030");
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        // ===== 1. MASTHEAD =====
+        drawMasthead(mastheadH, dateValue);
+
+        // ===== 2. BREAKING TICKER (glossy red gradient, dark edges -> bright center) =====
+        const tg = ctx.createLinearGradient(0, tickerTop, W, tickerTop);
+        tg.addColorStop(0.00, "#5c0006");
+        tg.addColorStop(0.14, "#c00810");
+        tg.addColorStop(0.50, "#ef0b14");
+        tg.addColorStop(0.86, "#c00810");
+        tg.addColorStop(1.00, "#5c0006");
+        ctx.fillStyle = tg;
+        ctx.fillRect(0, tickerTop, W, tickerH);
+        // glossy vertical sheen (light top, subtle dark bottom)
+        const gloss = ctx.createLinearGradient(0, tickerTop, 0, tickerTop + tickerH);
+        gloss.addColorStop(0.00, "rgba(255,255,255,0.22)");
+        gloss.addColorStop(0.45, "rgba(255,255,255,0.03)");
+        gloss.addColorStop(0.55, "rgba(0,0,0,0.00)");
+        gloss.addColorStop(1.00, "rgba(0,0,0,0.18)");
+        ctx.fillStyle = gloss;
+        ctx.fillRect(0, tickerTop, W, tickerH);
+        // gold accent lines
+        ctx.fillStyle = "#e8b93b";
+        ctx.fillRect(0, tickerTop, W, 6);
+        ctx.fillRect(0, tickerTop + tickerH - 6, W, 6);
+
+        const tickMidY = tickerTop + tickerH / 2;
+        const boltH = Math.round(tickerH * 0.42);
+        const boltW = boltH * 0.6;
+        const pad = 50;
+        const BOLT = "#ffd21a";                // bright gold bolt
+
+        // A gold bolt at each far end
+        drawBolt(pad + boltW / 2, tickMidY, boltH, BOLT);
+        drawBolt(W - pad - boltW / 2, tickMidY, boltH, BOLT);
+
+        // Centered mixed-font line: "BREAKING NEWS  ·  బ్రేకింగ్ న్యూస్" (all white)
+        const innerLeft  = pad + boltW + 30;
+        const innerRight = W - pad - boltW - 30;
+        const avail      = innerRight - innerLeft;
+        const center     = (innerLeft + innerRight) / 2;
+        const EN = "BREAKING NEWS", SEP = "  ·  ", TE = "బ్రేకింగ్ న్యూస్";
+
+        let enSize = Math.round(tickerH * 0.40);
+        let teSize = Math.round(tickerH * 0.44);
+        const measureLine = () => {
+            ctx.font = `900 ${enSize}px 'Arial Black', 'Arial', sans-serif`;
+            const wEn = ctx.measureText(EN).width;
+            ctx.font = `bold ${enSize}px 'Arial Black', 'Arial', sans-serif`;
+            const wSep = ctx.measureText(SEP).width;
+            ctx.font = `bold ${teSize}px 'Ramabhadra'`;
+            const wTe = ctx.measureText(TE).width;
+            return wEn + wSep + wTe;
+        };
+        let total = measureLine();
+        while (total > avail && enSize > 18) { enSize -= 2; teSize -= 2; total = measureLine(); }
+
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(0,0,0,0.45)";
+        ctx.shadowBlur = 6;
+        let x = center - total / 2;
+        ctx.font = `900 ${enSize}px 'Arial Black', 'Arial', sans-serif`;
+        ctx.fillText(EN, x, tickMidY + 2);
+        x += ctx.measureText(EN).width;
+        ctx.font = `bold ${enSize}px 'Arial Black', 'Arial', sans-serif`;
+        ctx.fillText(SEP, x, tickMidY + 2);
+        x += ctx.measureText(SEP).width;
+        ctx.font = `bold ${teSize}px 'Ramabhadra'`;
+        ctx.fillText(TE, x, tickMidY + 2);
+        ctx.shadowBlur = 0;
+        ctx.textBaseline = "alphabetic";
+
+        // ===== 3. IMAGE (large, edge to edge) =====
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, imageTop, W, imageH);
+        ctx.drawImage(mainImage, 0, imageTop, W, imageH);
+
+        // ===== 4. HEADLINE BAND (dark navy, lower-third) =====
+        const hGrad = ctx.createLinearGradient(0, headTop, 0, headTop + headH);
+        hGrad.addColorStop(0, "#161d4d");
+        hGrad.addColorStop(1, "#0b1030");
+        ctx.fillStyle = hGrad;
+        ctx.fillRect(0, headTop, W, headH);
+        // red accent bar on the left edge (lower-third signature)
+        ctx.fillStyle = "#d10a11";
+        ctx.fillRect(0, headTop, 20, headH);
+        // gold top line
+        ctx.fillStyle = "#e8b93b";
+        ctx.fillRect(0, headTop, W, 6);
+
+        // Tag chip (top-left inside band)
+        ctx.textAlign = "left";
+        ctx.font = "bold 30px 'Ramabhadra'";
+        ctx.fillStyle = "#e8b93b";
+        ctx.fillText("🔴 IMH • BREAKING NEWS", 55, headTop + 55);
+
+        // Full headline (auto-fit, wraps all lines, centered)
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = "rgba(0,0,0,0.85)";
+
+        const hMaxWidth = W - 160;
+        const hTextTop  = headTop + 80;                 // below the ID chip
+        const hMaxTotalHeight = (headTop + headH) - hTextTop - 40;
+
+        let hFontSize = 150, hLineHeight = 165, hLines = [];
+        do {
+            ctx.font = `bold ${hFontSize}px 'Ramabhadra'`;
+            hLines = getWrappedLines(headline, hMaxWidth);
+            if ((hLines.length * hLineHeight) <= hMaxTotalHeight || hFontSize <= 40) break;
+            hFontSize -= 2;
+            hLineHeight -= 2.2;
+        } while (hFontSize > 40);
+
+        let hStartY = hTextTop + (hMaxTotalHeight / 2) - ((hLines.length * hLineHeight) / 2) + (hFontSize * 0.75);
+        hLines.forEach((line) => {
+            ctx.fillText(line, W / 2, hStartY);
+            hStartY += hLineHeight;
+        });
+        ctx.shadowBlur = 0;
+
+        // ===== 5. FOOTER =====
+        drawFooter(footerH);
+
+        // ===== Outer border =====
+        drawBorder();
+    }
+
+    // ---------- Shared building blocks (used by both styles) ----------
+    function drawMasthead(mastheadH, dateValue) {
+        const W = canvas.width;
+        // background matches the logo's own corner color (no seam)
+        ctx.fillStyle = getLogoBg();
+        ctx.fillRect(0, 0, W, mastheadH);
+        // Logo (preserve aspect ratio, vertically centered, left)
+        try {
+            const lw = logo.naturalWidth || 1266;
+            const lh = logo.naturalHeight || 844;
+            const maxH = mastheadH - 30;
+            const maxW = W * 0.66;
+            const scale = Math.min(maxW / lw, maxH / lh);
+            const dw = lw * scale, dh = lh * scale;
+            ctx.drawImage(logo, 30, (mastheadH - dh) / 2, dw, dh);
+        } catch (e) {}
+        // Right side: publication + date + location
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#141a44";
+        ctx.font = "bold 34px 'Ramabhadra'";
+        ctx.fillText("సమాచార పత్రిక", W - 45, mastheadH / 2 - 55);
+        ctx.font = "bold 46px 'Ramabhadra'";
+        ctx.fillStyle = "#d10a11";
+        ctx.fillText(dateValue, W - 45, mastheadH / 2 + 10);
+        ctx.font = "bold 40px 'Ramabhadra'";
+        ctx.fillStyle = "#141a44";
+        ctx.fillText("రామగుండం", W - 45, mastheadH / 2 + 70);
+    }
+
+    function drawFooter(footerH) {
+        const W = canvas.width, H = canvas.height;
+        const footTop = H - footerH;
+        ctx.fillStyle = "#05081f";
+        ctx.fillRect(0, footTop, W, footerH);
+        ctx.fillStyle = "#e8b93b";
+        ctx.fillRect(0, footTop, W, 4);
+
+        const bottomY = H - 38;
+        ctx.save();
+        let currentX = 45;
+        const iconSize = 40, iconGap = 12;
+        ctx.drawImage(imgFB, currentX, bottomY - iconSize + 6, iconSize, iconSize); currentX += iconSize + iconGap;
+        ctx.drawImage(imgIG, currentX, bottomY - iconSize + 6, iconSize, iconSize); currentX += iconSize + iconGap;
+        ctx.drawImage(imgWA, currentX, bottomY - iconSize + 6, iconSize, iconSize); currentX += iconSize + iconGap;
+        ctx.drawImage(imgYT, currentX, bottomY - iconSize + 6, iconSize, iconSize); currentX += iconSize + iconGap;
+        ctx.drawImage(imgWeb, currentX, bottomY - iconSize + 6, iconSize, iconSize); currentX += iconSize + 16;
+
+        ctx.textAlign = "left";
+        ctx.font = "bold 30px 'Ramabhadra'";
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText("/idimanahakku.blogspot.com", currentX, bottomY);
+        ctx.restore();
+
+        // Reporter (right corner)
+        ctx.textAlign = "right";
+        const paddingRight = 30;
+        ctx.font = "bold 34px 'Ramabhadra'";
+        ctx.fillStyle = "#ffffff";
+        const teluguText = "వడ్లకొండ మహేందర్ గౌడ్🔴";
+        ctx.fillText(teluguText, W - paddingRight, bottomY);
+        const teluguWidth = ctx.measureText(teluguText).width;
+        ctx.font = "bold 28px 'Ramabhadra'";
+        ctx.fillStyle = "#e8b93b";
+        ctx.fillText("✍️IMH:MD & Editor✍️", W - paddingRight - teluguWidth - 15, bottomY);
+    }
+
+    function drawBorder() {
+        const W = canvas.width, H = canvas.height;
+        const brd = ctx.createLinearGradient(0, 0, W, H);
+        brd.addColorStop(0, "#8a6d3b");
+        brd.addColorStop(0.5, "#e8b93b");
+        brd.addColorStop(1, "#d10a11");
+        ctx.strokeStyle = brd;
+        ctx.lineWidth = 16;
+        ctx.strokeRect(ctx.lineWidth / 2, ctx.lineWidth / 2, W - ctx.lineWidth, H - ctx.lineWidth);
+    }
+
+    // Rounded-rect path (with fallback for older canvas)
+    function roundRectPath(x, y, w, h, r) {
+        ctx.beginPath();
+        if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); return; }
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+    }
+
+    // Small glossy red "⚡ BREAKING NEWS" pill; returns its width.
+    function drawBreakingPill(x, y, h) {
+        const fs = Math.round(h * 0.5);
+        const label = "BREAKING NEWS";
+        ctx.font = `900 ${fs}px 'Arial Black', 'Arial', sans-serif`;
+        const tw = ctx.measureText(label).width;
+        const boltW = fs * 0.6, padX = 50, gap = 24;
+        const w = padX + boltW + gap + tw + padX;
+        const g = ctx.createLinearGradient(x, y, x, y + h);
+        g.addColorStop(0, "#ef0b14");
+        g.addColorStop(1, "#a30009");
+        ctx.save();
+        ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = 12;
+        roundRectPath(x, y, w, h, 10);
+        ctx.fillStyle = g; ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.lineWidth = 3; ctx.strokeStyle = "#e8b93b"; ctx.stroke();
+        drawBolt(x + padX + boltW / 2, y + h / 2, h * 0.5, "#ffd21a");
+        ctx.textAlign = "left"; ctx.textBaseline = "middle"; ctx.fillStyle = "#ffffff";
+        ctx.font = `900 ${fs}px 'Arial Black', 'Arial', sans-serif`;
+        ctx.fillText(label, x + padX + boltW + gap, y + h / 2 + 2);
+        ctx.textBaseline = "alphabetic";
+        ctx.restore();
+        return w;
+    }
+
+    // Fit a headline into a box: shrink font until the wrapped lines fit.
+    function fitHeadline(text, maxWidth, maxHeight, startSize, startLine) {
+        let fs = startSize, lh = startLine, lines = [];
+        do {
+            ctx.font = `bold ${fs}px 'Ramabhadra'`;
+            lines = getWrappedLines(text, maxWidth);
+            if ((lines.length * lh) <= maxHeight || fs <= 40) break;
+            fs -= 2; lh -= 2.2;
+        } while (fs > 40);
+        return { lines, fs, lh };
+    }
+
+    // ---------- Style dispatcher ----------
+    function drawPoster(mainImage, headline, dateValue, currentID) {
+        const sel = document.querySelector('input[name="posterStyle"]:checked');
+        const style = sel ? sel.value : 'lowerthird';
+        if (style === 'fullbleed') drawFullBleed(mainImage, headline, dateValue, currentID);
+        else drawLowerThird(mainImage, headline, dateValue, currentID);
+    }
+
+    // ---------- STYLE 2: Full-Bleed Dramatic (headline over the photo) ----------
+    function drawFullBleed(mainImage, headline, dateValue, currentID) {
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+
+        const mastheadH = 230;
+        const footerH = 100;
+        const imageTop = mastheadH;
+        const imageH = H - footerH - mastheadH;
+
+        // Base
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, W, H);
+
+        // Masthead (logo + date)
+        drawMasthead(mastheadH, dateValue);
+
+        // Image: cover-fit the whole band (crop overflow, no stretching)
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, imageTop, W, imageH);
+        ctx.clip();
+        const iw = mainImage.width, ih = mainImage.height;
+        const scale = Math.max(W / iw, imageH / ih);
+        const dw = iw * scale, dh = ih * scale;
+        ctx.drawImage(mainImage, (W - dw) / 2, imageTop + (imageH - dh) / 2, dw, dh);
+        ctx.restore();
+
+        // Bottom scrim so the headline stays readable over any photo
+        const scrimTop = imageTop + imageH * 0.38;
+        const sg = ctx.createLinearGradient(0, scrimTop, 0, imageTop + imageH);
+        sg.addColorStop(0, "rgba(6,8,25,0)");
+        sg.addColorStop(0.55, "rgba(6,8,25,0.72)");
+        sg.addColorStop(1, "rgba(4,5,18,0.97)");
+        ctx.fillStyle = sg;
+        ctx.fillRect(0, scrimTop, W, (imageTop + imageH) - scrimTop);
+
+        // BREAKING pill (top-left over image)
+        drawBreakingPill(40, imageTop + 28, 108);
+
+        // Tag (top-right over image)
+        ctx.save();
+        ctx.textAlign = "right";
+        ctx.font = "bold 30px 'Ramabhadra'";
+        ctx.fillStyle = "#ffd21a";
+        ctx.shadowColor = "rgba(0,0,0,0.85)"; ctx.shadowBlur = 8;
+        ctx.fillText("🔴 IMH • BREAKING NEWS", W - 45, imageTop + 70);
+        ctx.restore();
+
+        // Headline: bottom-aligned over the scrim, left aligned, red accent bar
+        const hPad = 72;
+        const hMaxWidth = W - hPad - 55;
+        const hMaxHeight = imageH * 0.44;
+        const { lines, fs, lh } = fitHeadline(headline, hMaxWidth, hMaxHeight, 145, 158);
+        const blockH = lines.length * lh;
+        const firstBaseline = (imageTop + imageH - 45) - blockH + fs * 0.8;
+
+        // red accent bar spanning the headline block
+        ctx.fillStyle = "#d10a11";
+        ctx.fillRect(40, firstBaseline - fs * 0.82, 12, blockH);
+
+        ctx.save();
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(0,0,0,0.9)"; ctx.shadowBlur = 16;
+        ctx.font = `bold ${fs}px 'Ramabhadra'`;
+        let y = firstBaseline;
+        lines.forEach(line => { ctx.fillText(line, hPad, y); y += lh; });
+        ctx.restore();
+
+        // Footer + border
+        drawFooter(footerH);
+        drawBorder();
+    }
+
+    function getWrappedLines(text, maxWidth) {
+        if (!text) return [""];
+        const words = text.split(" ");
+        let lines = [];
+        let currentLine = "";
+        for (let n = 0; n < words.length; n++) {
+            let testLine = currentLine + words[n] + " ";
+            if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                lines.push(currentLine.trim());
+                currentLine = words[n] + " ";
+            } else {
+                currentLine = testLine;
+            }
+        }
+        lines.push(currentLine.trim());
+        return lines;
+    }
+
+    function downloadPoster() {
+        const link = document.createElement('a');
+        link.download = `ManaHakku_Breaking_${activeID}.png`;
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+    }
+</script>
+
+</body>
+</html>
