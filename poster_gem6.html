@@ -130,8 +130,16 @@ Here is the updated code. The official, brand-accurate **WhatsApp** and **YouTub
                     <textarea id="description" rows="5" class="form-control" placeholder="Write news content..." maxlength="1000"></textarea>
                     <span id="descriptionCounter" class="char-counter">0 / 1000</span>
 
-                    <label class="section-title">4. DATE</label>
-                    <input type="date" id="dateInput" class="form-control mb-4">
+                    <div class="row g-2">
+                        <div class="col-7">
+                            <label class="section-title">4. LOCATION</label>
+                            <input type="text" id="locationInput" class="form-control mb-4" value="రామగుండం" placeholder="Location">
+                        </div>
+                        <div class="col-5">
+                            <label class="section-title">5. DATE</label>
+                            <input type="date" id="dateInput" class="form-control mb-4">
+                        </div>
+                    </div>
 
                     <button class="btn btn-generate w-100 mb-2" onclick="generatePoster()">PREVIEW POSTER</button>
                     <button class="btn btn-download w-100" onclick="downloadPoster()">DOWNLOAD PNG</button>
@@ -252,10 +260,11 @@ Here is the updated code. The official, brand-accurate **WhatsApp** and **YouTub
         const headline = hInput.value || "Headline Here";
         const description = dInput.value || "Content goes here...";
         let dateValue = document.getElementById("dateInput").value || new Date().toLocaleDateString("en-IN");
+        const locationValue = document.getElementById("locationInput").value || "రామగుండం";
 
         const mainImage = new Image();
         mainImage.src = croppedImageData;
-        mainImage.onload = () => drawPoster(mainImage, headline, description, dateValue, activeID);
+        mainImage.onload = () => drawPoster(mainImage, headline, description, dateValue, activeID, locationValue);
     }
 
 function saveNewsId() {
@@ -263,7 +272,7 @@ function saveNewsId() {
     alert(`POSTER READY: ID IMH-2026-${formattedID}\n\nTo lock this ID into the database, please scroll to the VERY TOP of the page and click the red "SAVE & LOCK THIS ID" button.`);
     window.parent.scrollTo({top: 0, behavior: 'smooth'});
 }
-    function drawPoster(mainImage, headline, description, dateValue, currentID) {
+    function drawPoster(mainImage, headline, description, dateValue, currentID, locationValue) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const headerHeight = canvas.height * 0.12;
@@ -298,7 +307,7 @@ function saveNewsId() {
         ctx.font = "bold 40px 'Ramabhadra'";
         ctx.fillText(dateValue, canvas.width - 100, headerHeight/2 + 5);
         ctx.font = "bold 50px 'Ramabhadra'";
-        ctx.fillText("రామగుండం", canvas.width - 100, headerHeight/2 + 80);
+        ctx.fillText(locationValue, canvas.width - 100, headerHeight/2 + 80);
 
         // Headline Blue Bar
         const hGrad = ctx.createLinearGradient(0, captionStart, 0, captionStart + headlineHeight);
@@ -351,7 +360,7 @@ function saveNewsId() {
         ctx.textAlign = "left";
         ctx.font = "bold 30px 'Ramabhadra'";
         ctx.fillStyle = "#c00"; 
-        const infoLine = `📍 రామగుండం  |  🆔 News No: IMH-2026-${String(currentID).padStart(3, '0')}`;
+        const infoLine = `📍 ${locationValue}  |  🆔 News No: IMH-2026-${String(currentID).padStart(3, '0')}`;
         ctx.fillText(infoLine, 35, descStart + 45);
 
         // Description Text
