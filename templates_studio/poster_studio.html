@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mana Hakku | Multi-Template Poster Studio</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@300;400;700;800&family=Ramabhadra&family=Inter:wght@400;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-news: #1a237e;
+            --gold-premium: #d4af37;
+            --dark-bg: #0f172a;
+            --accent-red: #c00;
+        }
+
+        body {
+            background: radial-gradient(1200px 600px at 20% -10%, #1e293b 0%, #0f172a 45%, #060b1a 100%);
+            font-family: 'Inter', 'Noto Sans Telugu', sans-serif;
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+
+        .page-header {
+            background: linear-gradient(90deg, #0b1030 0%, #141a44 100%);
+            padding: 18px;
+            color: white;
+            border-bottom: 4px solid var(--gold-premium);
+            margin-bottom: 28px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            color: #1e293b;
+        }
+
+        .gradient-border-box {
+            padding: 3px;
+            background: linear-gradient(60deg, #1a237e, #d4af37, #c00, #1a237e);
+            background-size: 300% 300%;
+            animation: moveGradient 5s alternate infinite;
+            border-radius: 22px;
+            position: sticky;
+            top: 16px;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.55);
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 0.78rem;
+            letter-spacing: 0.03em;
+            color: var(--primary-news);
+            margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .btn-generate { background: #1a237e; color: white; font-weight: bold; border: none; padding: 12px; }
+        .btn-generate:hover { background: #12194f; color:#fff; }
+        .btn-download { background: #c00; color: white; border: none; padding: 12px; font-weight:bold; }
+        .btn-download:hover { background: #a00; color:#fff; }
+
+        .char-counter { font-size: 0.7rem; color: #64748b; text-align: right; display: block; margin-bottom: 12px; }
+
+        .id-badge {
+            background: #fff3cd; color: #856404; padding: 5px 12px; border-radius: 8px;
+            font-weight: bold; font-size: 0.9rem; border: 1px solid #ffeeba;
+            display: inline-block; margin-bottom: 16px;
+        }
+
+        .img-container { min-height: 380px; max-height: 500px; width: 100%; }
+
+        /* ---- Template picker cards ---- */
+        .tpl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 6px; }
+        .tpl-card {
+            border: 2px solid #e2e8f0; border-radius: 12px; padding: 8px; cursor: pointer;
+            text-align: center; transition: all .18s ease; background:#fff;
+        }
+        .tpl-card:hover { border-color: var(--gold-premium); transform: translateY(-2px); }
+        .tpl-card.active { border-color: var(--primary-news); box-shadow: 0 0 0 3px rgba(26,35,126,0.15); }
+        .tpl-swatch { height: 56px; border-radius: 8px; margin-bottom: 6px; display:flex; overflow:hidden; }
+        .tpl-name { font-size: 0.68rem; font-weight: 700; color:#334155; }
+
+        /* Swatches per template */
+        .sw-classic  { background: linear-gradient(180deg,#F9E03D 0 22%,#e2e8f0 22% 55%,#1a237e 55% 74%,#f8fafc 74% 100%); }
+        .sw-dark     { background: linear-gradient(180deg,#0b1030 0 30%,#d10a11 30% 42%,#141a44 42% 78%,#0b1030 78% 100%); }
+        .sw-magazine { background: linear-gradient(90deg,#111 0 46%,#fff 46% 100%); position:relative; }
+        .sw-magazine::after{ content:''; position:absolute; left:8%; top:60%; width:30%; height:16%; background:#d4af37; }
+
+        .hint { font-size:.72rem; color:#64748b; margin-top:-4px; margin-bottom:14px; }
+    </style>
+</head>
+<body>
+
+<header class="page-header text-center">
+    <h2 class="mb-0" style="font-family: 'Ramabhadra';">మన హక్కు
+        <span style="font-weight: 300; font-size: 1.1rem; color: #d4af37;">Multi-Template Poster Studio</span>
+    </h2>
+</header>
+
+<div class="container-fluid px-4 pb-5">
+    <div class="row g-4">
+        <div class="col-lg-4 col-xl-3">
+            <div class="gradient-border-box">
+                <div class="control-panel">
+                    <div class="text-center">
+                        <span class="id-badge">Current News ID: <span id="displayID">LOADING...</span></span>
+                    </div>
+
+                    <label class="section-title">1. Choose Template</label>
+                    <select id="tplSelect" class="form-select mb-2">
+                        <option value="classic">Classic — Yellow header + blue bar</option>
+                        <option value="dark">Bold Dark — TV-news, red BREAKING</option>
+                        <option value="magazine">Magazine — Editorial hero layout</option>
+                    </select>
+                    <div class="tpl-grid" id="tplGrid">
+                        <div class="tpl-card active" data-tpl="classic">
+                            <div class="tpl-swatch sw-classic"></div>
+                            <div class="tpl-name">Classic</div>
+                        </div>
+                        <div class="tpl-card" data-tpl="dark">
+                            <div class="tpl-swatch sw-dark"></div>
+                            <div class="tpl-name">Bold Dark</div>
+                        </div>
+                        <div class="tpl-card" data-tpl="magazine">
+                            <div class="tpl-swatch sw-magazine"></div>
+                            <div class="tpl-name">Magazine</div>
+                        </div>
+                    </div>
+                    <p class="hint">Switch anytime — content stays intact.</p>
+
+                    <label class="section-title">2. Photo (Upload & Crop)</label>
+                    <input type="file" id="imageUpload" class="form-control mb-3" accept="image/*">
+
+                    <label class="section-title">3. Headline</label>
+                    <textarea id="headline" class="form-control" rows="3" placeholder="Enter headline..." maxlength="120"></textarea>
+                    <span id="headlineCounter" class="char-counter">0 / 120</span>
+
+                    <label class="section-title">4. Description</label>
+                    <textarea id="description" rows="5" class="form-control" placeholder="Write news content..." maxlength="1000"></textarea>
+                    <span id="descriptionCounter" class="char-counter">0 / 1000</span>
+
+                    <div class="row g-2">
+                        <div class="col-7">
+                            <label class="section-title">5. Location</label>
+                            <input type="text" id="locationInput" class="form-control mb-3" value="రామగుండం" placeholder="Location">
+                        </div>
+                        <div class="col-5">
+                            <label class="section-title">6. Date</label>
+                            <input type="date" id="dateInput" class="form-control mb-3">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-generate w-100 mb-2" onclick="generatePoster()">PREVIEW POSTER</button>
+                    <button class="btn btn-download w-100" onclick="downloadPoster()">DOWNLOAD PNG</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-xl-9 text-center">
+            <canvas id="posterCanvas" width="1500" height="2600"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Crop Modal -->
+<div class="modal fade" id="cropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adjust & Crop Photo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="img-container"><img id="imageToCrop" src=""></div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div>
+                    <button type="button" class="btn btn-outline-dark" onclick="cropper.rotate(-90)">↺ Rotate</button>
+                    <button type="button" class="btn btn-outline-dark" onclick="cropper.rotate(90)">↻ Rotate</button>
+                </div>
+                <button type="button" class="btn btn-primary px-4" onclick="applyCrop()">Apply & Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+    const canvas = document.getElementById("posterCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Shared brand logo (root of project). "../" keeps this file self-contained in its own folder.
+    const logo = new Image();
+    logo.src = "../logo.png";
+
+    // Breaking-news logo — used by the Bold Dark & Magazine templates.
+    const logoAlt = new Image();
+    logoAlt.src = "../breaking_news/Final_Logo.png";
+
+    // ---- Brand vector icons (inline SVG data-URIs) ----
+    const imgFB = new Image();
+    imgFB.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231877F2'><path d='M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z'/></svg>";
+    const imgIG = new Image();
+    imgIG.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23E4405F'><path d='M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z'/></svg>";
+    const imgWA = new Image();
+    imgWA.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325D366'><path d='M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.455L0 24zm6.59-3.559c1.649.979 3.26 1.492 4.905 1.493 5.398 0 9.794-4.397 9.797-9.798a9.71 9.71 0 0 0-2.87-6.932 9.74 9.74 0 0 0-6.923-2.866c-5.399 0-9.796 4.399-9.8 9.801a9.745 9.745 0 0 0 1.493 4.916l-.995 3.635 3.73-.978zM16.582 13.5c-.272-.136-1.611-.795-1.86-.886-.25-.092-.432-.136-.613.136-.182.273-.705.886-.864 1.068-.159.182-.318.205-.59.069-.272-.136-1.15-.424-2.19-1.353-.809-.722-1.354-1.616-1.513-1.888-.159-.273-.017-.42.119-.556.123-.122.272-.318.409-.477.136-.159.182-.272.272-.454.091-.181.046-.34-.023-.477-.069-.136-.613-1.477-.839-2.023-.22-.531-.44-.459-.613-.468-.159-.008-.341-.01-.523-.01s-.477.068-.727.34c-.25.272-.954.932-.954 2.272s.977 2.636 1.114 2.818c.136.182 1.92 2.931 4.653 4.113.65.28 1.157.447 1.553.573.654.208 1.248.178 1.717.108.523-.078 1.611-.659 1.839-1.295.227-.636.227-1.182.159-1.295-.069-.114-.249-.182-.522-.318z'/></svg>";
+    const imgYT = new Image();
+    imgYT.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF0000'><path d='M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/></svg>";
+    const imgWeb = new Image();
+    imgWeb.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231a237e'><path d='M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm8.854 8h-2.908c-.347-1.742-.888-3.344-1.595-4.723C18.106 4.357 19.742 5.955 20.854 8zm-5.96 0H9.106c-.309-1.644-.768-3.2-1.362-4.55C8.948 2.502 10.428 2 12 2s3.052.502 4.256 1.45c-.594 1.35-1.053 2.906-1.362 4.55zM4.054 14c-.036-.653-.054-1.32-.054-2s.018-1.347.054-2h4.048c-.033.655-.052 1.319-.052 2s.019 1.345.052 2H4.054zm.798-6c1.112-2.045 2.748-3.643 4.505-4.723-.707 1.379-1.248 2.981-1.595 4.723H4.852zM12 22c-1.572 0-3.052-.502-4.256-1.45.594-1.35 1.053-2.906 1.362-4.55h5.788c.309 1.644.768 3.2 1.362 4.55C15.052 21.498 13.572 22 12 22zm2.946-8H9.054c-.032-.652-.054-1.317-.054-2s.022-1.348.054-2h5.892c.032.652.054 1.317.054 2s-.022 1.348-.054 2zm.9 6.723c.707-1.379 1.248-2.981 1.595-4.723h2.908c-1.112 2.045-2.748 3.643-4.503 4.723zm4.246-4.723h-4.048c.033-.655.052-1.319.052-2s-.019-1.345-.052-2h4.048c.036.653.054 1.32.054 2s-.018 1.347-.054 2z'/></svg>";
+
+    // ---- State ----
+    const hInput = document.getElementById('headline');
+    const dInput = document.getElementById('description');
+    const imageUpload = document.getElementById('imageUpload');
+    const imageToCrop = document.getElementById('imageToCrop');
+
+    let cropper;
+    let croppedImageData = null;
+    let currentTemplate = 'classic';
+    const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
+
+    let activeID = parseInt(localStorage.getItem('newsCounter')) || 35;
+    const updateIDDisplay = () => {
+        document.getElementById('displayID').textContent = `IMH-2026-${String(activeID).padStart(3, '0')}`;
+    };
+    updateIDDisplay();
+
+    hInput.addEventListener('input', () => { document.getElementById('headlineCounter').textContent = `${hInput.value.length} / 120`; });
+    dInput.addEventListener('input', () => { document.getElementById('descriptionCounter').textContent = `${dInput.value.length} / 1000`; });
+
+    // ---- Template selection (dropdown + cards stay in sync) ----
+    const tplSelect = document.getElementById('tplSelect');
+
+    function selectTemplate(tpl) {
+        currentTemplate = tpl;
+        document.querySelectorAll('.tpl-card').forEach(c =>
+            c.classList.toggle('active', c.dataset.tpl === tpl));
+        if (tplSelect.value !== tpl) tplSelect.value = tpl;
+        if (croppedImageData) generatePoster(); // live re-render if a photo already exists
+    }
+
+    tplSelect.addEventListener('change', () => selectTemplate(tplSelect.value));
+    document.querySelectorAll('.tpl-card').forEach(card => {
+        card.addEventListener('click', () => selectTemplate(card.dataset.tpl));
+    });
+
+    // ---- Image upload + crop ----
+    imageUpload.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (event) => { imageToCrop.src = event.target.result; cropModal.show(); };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    document.getElementById('cropModal').addEventListener('shown.bs.modal', function () {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(imageToCrop, { aspectRatio: NaN, viewMode: 1, autoCropArea: 1, dragMode: 'move' });
+    });
+
+    function applyCrop() {
+        const c = cropper.getCroppedCanvas({ imageSmoothingEnabled: true, imageSmoothingQuality: 'high' });
+        croppedImageData = c.toDataURL('image/jpeg', 0.92);
+        cropModal.hide();
+    }
+
+    // ---- Preview ----
+    function generatePoster() {
+        if (!croppedImageData) { alert("Please upload and crop an image first!"); return; }
+        const data = {
+            headline: hInput.value || "ఇక్కడ శీర్షిక రాయండి",
+            description: dInput.value || "ఇక్కడ వార్తా వివరాలు రాయండి...",
+            location: document.getElementById("locationInput").value || "రామగుండం",
+            date: document.getElementById("dateInput").value || new Date().toLocaleDateString("en-IN"),
+            id: activeID
+        };
+        const mainImage = new Image();
+        mainImage.src = croppedImageData;
+        mainImage.onload = () => {
+            const renderer = TEMPLATES[currentTemplate] || TEMPLATES.classic;
+            renderer(mainImage, data);
+        };
+    }
+
+    // =====================================================================
+    //  Shared helpers
+    // =====================================================================
+    function getWrappedLines(text, maxWidth) {
+        if (!text) return [""];
+        const words = text.split(" ");
+        let lines = [], currentLine = "";
+        for (let n = 0; n < words.length; n++) {
+            let testLine = currentLine + words[n] + " ";
+            if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                lines.push(currentLine.trim());
+                currentLine = words[n] + " ";
+            } else { currentLine = testLine; }
+        }
+        lines.push(currentLine.trim());
+        return lines;
+    }
+
+    // Cover-fit an image into a box (no distortion, centered crop)
+    function drawImageCover(img, x, y, w, h) {
+        const ir = img.width / img.height, br = w / h;
+        let sw, sh, sx, sy;
+        if (ir > br) { sh = img.height; sw = sh * br; sx = (img.width - sw) / 2; sy = 0; }
+        else { sw = img.width; sh = sw / br; sx = 0; sy = (img.height - sh) / 2; }
+        ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+    }
+
+    // Draw a logo fitted inside a box WITHOUT distortion (letterboxed, left-aligned, vertically centered).
+    function drawLogoFit(img, x, y, maxW, maxH) {
+        try {
+            if (!img.naturalWidth) return;
+            const r = img.naturalWidth / img.naturalHeight;
+            let w = maxW, h = w / r;
+            if (h > maxH) { h = maxH; w = h * r; }
+            ctx.drawImage(img, x, y + (maxH - h) / 2, w, h);
+        } catch (e) {}
+    }
+
+    function fitFont(text, maxWidth, maxHeight, start, min, family, lineFactor) {
+        let size = start, lh = start * lineFactor, lines = [];
+        do {
+            ctx.font = `bold ${size}px ${family}`;
+            lines = getWrappedLines(text, maxWidth);
+            lh = size * lineFactor;
+            if (lines.length * lh <= maxHeight || size <= min) break;
+            size -= 2;
+        } while (size > min);
+        return { size, lh, lines };
+    }
+
+    function drawSocialFooter(bottomY, linkColor) {
+        ctx.save();
+        let x = 45; const sz = 38, gap = 10;
+        [imgFB, imgIG, imgWA, imgYT, imgWeb].forEach(ic => {
+            try { ctx.drawImage(ic, x, bottomY - sz + 4, sz, sz); } catch (e) {}
+            x += sz + gap;
+        });
+        x += 6;
+        ctx.textAlign = "left";
+        ctx.font = "bold 30px 'Ramabhadra'";
+        ctx.fillStyle = linkColor;
+        ctx.fillText("/idimanahakku.in", x, bottomY);
+        ctx.restore();
+    }
+
+    function drawReporter(bottomY, color) {
+        ctx.textAlign = "right";
+        ctx.fillStyle = color;
+        const paddingRight = 30;
+        ctx.font = "bold 34px 'Ramabhadra'";
+        const teluguText = "వడ్లకొండ మహేందర్ గౌడ్🔴";
+        ctx.fillText(teluguText, canvas.width - paddingRight, bottomY);
+        const teluguWidth = ctx.measureText(teluguText).width;
+        ctx.font = "bold 29px 'Ramabhadra'";
+        ctx.fillText("✍️IMH:MD & Editor✍️🔴", canvas.width - paddingRight - teluguWidth - 15, bottomY);
+        ctx.textAlign = "left";
+    }
+
+    function idLine(data) {
+        return `📍 ${data.location}  |  🆔 News No: IMH-2026-${String(data.id).padStart(3, '0')}  |  🗓 ${data.date}`;
+    }
+
+    // =====================================================================
+    //  TEMPLATE 1 — CLASSIC (bright, yellow header + blue headline bar)
+    // =====================================================================
+    function drawClassic(img, data) {
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+
+        const headerH = H * 0.115;
+        const imageH = H * 0.45;
+        const headlineH = H * 0.145;
+        const capStart = headerH + imageH;
+
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, W, H);
+        drawImageCover(img, 0, headerH, W, imageH);
+
+        // Header
+        ctx.fillStyle = "#F9E03D"; ctx.fillRect(0, 0, W, headerH);
+        try {
+            const pad = 22, lW = W * 0.50, lH = headerH - pad * 2;
+            ctx.drawImage(logo, 60, pad, lW, lH);
+        } catch (e) {}
+        ctx.fillStyle = "#1a237e"; ctx.textAlign = "right";
+        ctx.font = "bold 34px 'Ramabhadra'"; ctx.fillText("సమాచార పత్రిక", W - 100, headerH / 2 - 80);
+        ctx.font = "bold 40px 'Ramabhadra'"; ctx.fillText(data.date, W - 100, headerH / 2 + 5);
+        ctx.font = "bold 50px 'Ramabhadra'"; ctx.fillText(data.location, W - 100, headerH / 2 + 80);
+
+        // Headline bar
+        const g = ctx.createLinearGradient(0, capStart, 0, capStart + headlineH);
+        g.addColorStop(0, "#0d123e"); g.addColorStop(0.5, "#1a237e"); g.addColorStop(1, "#0d123e");
+        ctx.fillStyle = g; ctx.fillRect(0, capStart, W, headlineH);
+        ctx.fillStyle = "#d4af37";
+        ctx.fillRect(0, capStart, W, 8); ctx.fillRect(0, capStart + headlineH - 8, W, 8);
+
+        ctx.fillStyle = "#fff"; ctx.textAlign = "center";
+        ctx.shadowBlur = 12; ctx.shadowColor = "rgba(0,0,0,0.8)";
+        const hf = fitFont(data.headline, W - 200, headlineH - 40, 110, 62, "'Ramabhadra'", 1.1);
+        let hy = capStart + headlineH / 2 - (hf.lines.length * hf.lh) / 2 + hf.size * 0.8;
+        ctx.font = `bold ${hf.size}px 'Ramabhadra'`;
+        hf.lines.forEach(l => { ctx.fillText(l, W / 2, hy); hy += hf.lh; });
+        ctx.shadowBlur = 0;
+
+        // Description
+        const descStart = capStart + headlineH;
+        ctx.fillStyle = "#f8fafc"; ctx.fillRect(0, descStart, W, H - descStart);
+        ctx.textAlign = "left"; ctx.font = "bold 30px 'Ramabhadra'"; ctx.fillStyle = "#c00";
+        ctx.fillText(idLine(data), 35, descStart + 48);
+
+        ctx.fillStyle = "#1e293b";
+        const cStartY = descStart + 120;
+        const df = fitFont(data.description, W - 80, H - cStartY - 110, 55, 28, "'Ramabhadra'", 1.5);
+        ctx.font = `${df.size}px 'Ramabhadra'`;
+        let dy = cStartY;
+        df.lines.forEach(l => { ctx.fillText(l, 40, dy); dy += df.lh; });
+
+        // Watermark
+        ctx.globalAlpha = 0.04; ctx.font = "bold 220px 'Ramabhadra'"; ctx.fillStyle = "#000";
+        ctx.textAlign = "center"; ctx.fillText("మన హక్కు", W / 2, H * 0.88); ctx.globalAlpha = 1;
+
+        const bottomY = H - 50;
+        drawSocialFooter(bottomY, "#1a237e");
+        drawReporter(bottomY, "#1a237e");
+
+        const bg = ctx.createLinearGradient(0, 0, W, H);
+        bg.addColorStop(0, "#8a6d3b"); bg.addColorStop(0.5, "#d4af37"); bg.addColorStop(1, "#1a237e");
+        ctx.strokeStyle = bg; ctx.lineWidth = 18;
+        ctx.strokeRect(9, 9, W - 18, H - 18);
+    }
+
+    // =====================================================================
+    //  TEMPLATE 2 — BOLD DARK (TV-news style, red BREAKING flag)
+    // =====================================================================
+    function drawDark(img, data) {
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+
+        // Dark base
+        const bgG = ctx.createLinearGradient(0, 0, 0, H);
+        bgG.addColorStop(0, "#0b1030"); bgG.addColorStop(1, "#141a44");
+        ctx.fillStyle = bgG; ctx.fillRect(0, 0, W, H);
+
+        const headerH = H * 0.10;
+        const imageTop = headerH;
+        const imageH = H * 0.44;
+
+        // Header row (breaking-news logo, aspect-preserved)
+        const pad = 18;
+        drawLogoFit(logoAlt, 50, pad, W * 0.46, headerH - pad * 2);
+        ctx.textAlign = "right"; ctx.fillStyle = "#e8b93b";
+        ctx.font = "bold 40px 'Ramabhadra'"; ctx.fillText(data.date, W - 60, headerH / 2 - 6);
+        ctx.fillStyle = "#cbd5e1"; ctx.font = "bold 34px 'Ramabhadra'";
+        ctx.fillText(data.location, W - 60, headerH / 2 + 44);
+
+        // Photo with gold frame
+        drawImageCover(img, 40, imageTop, W - 80, imageH);
+        ctx.strokeStyle = "#e8b93b"; ctx.lineWidth = 8;
+        ctx.strokeRect(40, imageTop, W - 80, imageH);
+        // Bottom gradient scrim over photo
+        const scrim = ctx.createLinearGradient(0, imageTop + imageH - 220, 0, imageTop + imageH);
+        scrim.addColorStop(0, "rgba(11,16,48,0)"); scrim.addColorStop(1, "rgba(11,16,48,0.95)");
+        ctx.fillStyle = scrim; ctx.fillRect(40, imageTop + imageH - 220, W - 80, 220);
+
+        // BREAKING flag
+        const flagY = imageTop + imageH - 96;
+        ctx.fillStyle = "#d10a11"; ctx.fillRect(40, flagY, 430, 64);
+        ctx.fillStyle = "#fff"; ctx.textAlign = "left";
+        ctx.font = "800 44px 'Inter'"; ctx.fillText("BREAKING", 62, flagY + 47);
+        ctx.fillStyle = "#e8b93b"; ctx.font = "bold 34px 'Ramabhadra'";
+        ctx.fillText("తాజా వార్త", 300, flagY + 46);
+
+        // Headline area
+        const capStart = imageTop + imageH + 30;
+        const headlineH = H * 0.16;
+        ctx.textAlign = "center"; ctx.fillStyle = "#ffffff";
+        const hf = fitFont(data.headline, W - 160, headlineH, 108, 60, "'Ramabhadra'", 1.12);
+        ctx.font = `bold ${hf.size}px 'Ramabhadra'`;
+        let hy = capStart + hf.size;
+        hf.lines.forEach(l => { ctx.fillText(l, W / 2, hy); hy += hf.lh; });
+
+        // Gold divider
+        ctx.fillStyle = "#e8b93b";
+        ctx.fillRect(W / 2 - 120, hy - hf.lh + 30, 240, 6);
+
+        // Description card
+        const descTop = capStart + headlineH + 30;
+        const descH = (H - 120) - descTop;
+        ctx.fillStyle = "rgba(255,255,255,0.06)";
+        roundRect(40, descTop, W - 80, descH, 20); ctx.fill();
+        ctx.strokeStyle = "rgba(232,185,59,0.4)"; ctx.lineWidth = 2;
+        roundRect(40, descTop, W - 80, descH, 20); ctx.stroke();
+
+        ctx.textAlign = "left"; ctx.font = "bold 28px 'Ramabhadra'"; ctx.fillStyle = "#e8b93b";
+        ctx.fillText(idLine(data), 70, descTop + 55);
+
+        ctx.fillStyle = "#e2e8f0";
+        const cStartY = descTop + 130;
+        const df = fitFont(data.description, W - 160, descH - 170, 52, 28, "'Ramabhadra'", 1.5);
+        ctx.font = `${df.size}px 'Ramabhadra'`;
+        let dy = cStartY;
+        df.lines.forEach(l => { ctx.fillText(l, 70, dy); dy += df.lh; });
+
+        const bottomY = H - 45;
+        drawSocialFooter(bottomY, "#e8b93b");
+        drawReporter(bottomY, "#e8b93b");
+
+        ctx.strokeStyle = "#e8b93b"; ctx.lineWidth = 14;
+        ctx.strokeRect(7, 7, W - 14, H - 14);
+    }
+
+    // =====================================================================
+    //  TEMPLATE 3 — MAGAZINE (editorial serif, big photo top, clean body)
+    // =====================================================================
+    function drawMagazine(img, data) {
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, W, H);
+
+        // Full-bleed hero photo top ~48%
+        const imageH = H * 0.48;
+        drawImageCover(img, 0, 0, W, imageH);
+
+        // Top ribbon with breaking-news logo (taller so it isn't compressed)
+        const ribbonH = 210;
+        ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(0, 0, W, ribbonH);
+        drawLogoFit(logoAlt, 50, 24, W * 0.44, ribbonH - 48);
+        ctx.textAlign = "right"; ctx.fillStyle = "#fff"; ctx.font = "bold 36px 'Ramabhadra'";
+        ctx.fillText(`${data.location}  •  ${data.date}`, W - 50, ribbonH / 2 + 12);
+
+        // Category tab
+        ctx.fillStyle = "#d4af37"; ctx.fillRect(60, imageH - 90, 360, 62);
+        ctx.fillStyle = "#111"; ctx.textAlign = "left"; ctx.font = "800 40px 'Playfair Display'";
+        ctx.fillText("EXCLUSIVE", 84, imageH - 46);
+
+        // Headline block on white
+        const hStart = imageH + 55;
+        ctx.fillStyle = "#111"; ctx.textAlign = "left";
+        const hf = fitFont(data.headline, W - 130, H * 0.17, 100, 58, "'Ramabhadra'", 1.14);
+        ctx.font = `bold ${hf.size}px 'Ramabhadra'`;
+        let hy = hStart + hf.size;
+        hf.lines.forEach(l => { ctx.fillText(l, 65, hy); hy += hf.lh; });
+
+        // thin rule + meta
+        const ruleY = hy - hf.lh + 40;
+        ctx.strokeStyle = "#d4af37"; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(65, ruleY); ctx.lineTo(W - 65, ruleY); ctx.stroke();
+        ctx.fillStyle = "#c00"; ctx.font = "bold 28px 'Ramabhadra'";
+        ctx.fillText(idLine(data), 65, ruleY + 48);
+
+        // Body text — two visual columns feel via generous leading
+        ctx.fillStyle = "#1e293b";
+        const cStartY = ruleY + 120;
+        const df = fitFont(data.description, W - 130, H - cStartY - 120, 52, 28, "'Ramabhadra'", 1.55);
+        ctx.font = `${df.size}px 'Ramabhadra'`;
+        let dy = cStartY;
+        df.lines.forEach(l => { ctx.fillText(l, 65, dy); dy += df.lh; });
+
+        // Watermark
+        ctx.globalAlpha = 0.035; ctx.font = "800 200px 'Playfair Display'"; ctx.fillStyle = "#000";
+        ctx.textAlign = "center"; ctx.fillText("NEWS", W / 2, H * 0.9); ctx.globalAlpha = 1;
+
+        // Footer strip
+        ctx.fillStyle = "#111"; ctx.fillRect(0, H - 100, W, 100);
+        const bottomY = H - 40;
+        drawSocialFooter(bottomY, "#e8b93b");
+        drawReporter(bottomY, "#e8b93b");
+
+        ctx.strokeStyle = "#111"; ctx.lineWidth = 10;
+        ctx.strokeRect(5, 5, W - 10, H - 10);
+    }
+
+    function roundRect(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+    }
+
+    const TEMPLATES = { classic: drawClassic, dark: drawDark, magazine: drawMagazine };
+
+    function downloadPoster() {
+        if (!croppedImageData) { alert("Please generate a poster first!"); return; }
+        const link = document.createElement('a');
+        link.download = `ManaHakku_${currentTemplate}_${activeID}.png`;
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+    }
+</script>
+
+</body>
+</html>

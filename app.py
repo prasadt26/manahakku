@@ -35,12 +35,15 @@ logo_file = "logo.png"
 # --- BREAKING NEWS FEATURE (delete this block to remove) ---
 poster_type = st.radio(
     "Poster Type",
-    ["📰 Standard News", "⚡ Breaking News"],
+    ["📰 Standard News", "⚡ Breaking News", "🎨 Multi-Template Studio"],
     horizontal=True,
 )
 if poster_type == "⚡ Breaking News":
     poster_file = os.path.join("breaking_news", "breaking_news.html")
     logo_file = os.path.join("breaking_news", "Final_Logo.png")
+elif poster_type == "🎨 Multi-Template Studio":
+    poster_file = os.path.join("templates_studio", "poster_studio.html")
+    logo_file = "logo.png"
 # --- END BREAKING NEWS FEATURE ---
 
 # THE EXPLICIT BUTTON
@@ -61,7 +64,18 @@ with open(poster_file, "r", encoding="utf-8") as f:
 if os.path.exists(logo_file):
     with open(logo_file, "rb") as img:
         logo_base = base64.b64encode(img.read()).decode()
-    html_content = html_content.replace('logo.src = "logo.png";', f'logo.src = "data:image/png;base64,{logo_base}";')
+    logo_data_uri = f'data:image/png;base64,{logo_base}'
+    # Handles both the root posters (logo.png) and the studio in its own folder (../logo.png)
+    html_content = html_content.replace('logo.src = "logo.png";', f'logo.src = "{logo_data_uri}";')
+    html_content = html_content.replace('logo.src = "../logo.png";', f'logo.src = "{logo_data_uri}";')
+
+# Multi-Template Studio also uses the breaking-news logo (logoAlt) for its Dark & Magazine designs
+alt_logo_file = os.path.join("breaking_news", "Final_Logo.png")
+if os.path.exists(alt_logo_file):
+    with open(alt_logo_file, "rb") as img:
+        alt_logo_base = base64.b64encode(img.read()).decode()
+    alt_logo_uri = f'data:image/png;base64,{alt_logo_base}'
+    html_content = html_content.replace('logoAlt.src = "../breaking_news/Final_Logo.png";', f'logoAlt.src = "{alt_logo_uri}";')
 
 # Inject active_id into JS
 html_content = html_content.replace(
