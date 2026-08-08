@@ -287,12 +287,16 @@ function saveNewsId() {
         // Photo
         ctx.drawImage(mainImage, 0, headerHeight, canvas.width, imageHeight);
 
-        // Header — light-yellow gradient behind the logo, transitioning to the original
-        // bright yellow on the right so the metadata text keeps its familiar background.
+        // Header — symmetric yellow gradient: bright edges, softer middle band that still
+        // reads clearly as yellow (not washed out to near-white).
+        // Mapping (brightness levels along width): 100 -> 50 -> 15 -> 15 -> 50 -> 100.
         const hdrGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
-        hdrGrad.addColorStop(0,   "#fef9c3"); // very pale yellow (logo area)
-        hdrGrad.addColorStop(0.5, "#fde68a"); // soft yellow (transition)
-        hdrGrad.addColorStop(1,   "#F9E03D"); // original bright yellow (text side)
+        hdrGrad.addColorStop(0.0, "#F9E03D"); // 100 — original bright yellow (left edge)
+        hdrGrad.addColorStop(0.2, "#fde68a"); // 50  — soft yellow
+        hdrGrad.addColorStop(0.4, "#fef08a"); // 15  — light yellow (start of plateau)
+        hdrGrad.addColorStop(0.6, "#fef08a"); // 15  — light yellow (end of plateau)
+        hdrGrad.addColorStop(0.8, "#fde68a"); // 50  — soft yellow
+        hdrGrad.addColorStop(1.0, "#F9E03D"); // 100 — original bright yellow (right edge)
         ctx.fillStyle = hdrGrad;
         ctx.fillRect(0, 0, canvas.width, headerHeight);
 
