@@ -287,8 +287,13 @@ function saveNewsId() {
         // Photo
         ctx.drawImage(mainImage, 0, headerHeight, canvas.width, imageHeight);
 
-        // Header Yellow Bar
-        ctx.fillStyle = "#F9E03D"; 
+        // Header — light-yellow gradient behind the logo, transitioning to the original
+        // bright yellow on the right so the metadata text keeps its familiar background.
+        const hdrGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        hdrGrad.addColorStop(0,   "#fef9c3"); // very pale yellow (logo area)
+        hdrGrad.addColorStop(0.5, "#fde68a"); // soft yellow (transition)
+        hdrGrad.addColorStop(1,   "#F9E03D"); // original bright yellow (text side)
+        ctx.fillStyle = hdrGrad;
         ctx.fillRect(0, 0, canvas.width, headerHeight);
 
         // Logo Placement

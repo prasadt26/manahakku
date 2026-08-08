@@ -31,19 +31,25 @@ active_id = last_id + 1
 st.title("Mana Hakku Poster Studio")
 
 poster_file = "poster_gem6.html"
-logo_file = "logo.png"
+logo_file = "Idi_Mana_Hakku_Header_4K_Transparent_Standard.png"
 # --- BREAKING NEWS FEATURE (delete this block to remove) ---
 poster_type = st.radio(
     "Poster Type",
-    ["📰 Standard News", "⚡ Breaking News", "🎨 Multi-Template Studio"],
+    ["📰 Standard News", "⚡ Breaking News", "🎨 Multi-Template Studio", "🎨 Standard News — Colorful", "✨ Standard News — Gold"],
     horizontal=True,
 )
 if poster_type == "⚡ Breaking News":
     poster_file = os.path.join("breaking_news", "breaking_news.html")
-    logo_file = os.path.join("breaking_news", "Final_Logo.png")
+    logo_file = "Idi_Mana_Hakku_Logo_Transparent.png"
 elif poster_type == "🎨 Multi-Template Studio":
     poster_file = os.path.join("templates_studio", "poster_studio.html")
-    logo_file = "logo.png"
+    logo_file = "Idi_Mana_Hakku_Logo_Transparent.png"
+elif poster_type == "🎨 Standard News — Colorful":
+    poster_file = os.path.join("standard_news_colorful", "standard_news_colorful.html")
+    logo_file = "Idi_Mana_Hakku_Logo_Transparent.png"
+elif poster_type == "✨ Standard News — Gold":
+    poster_file = os.path.join("standard_news_gold", "standard_news_gold.html")
+    logo_file = "Idi_Mana_Hakku_Logo_Transparent.png"
 # --- END BREAKING NEWS FEATURE ---
 
 # THE EXPLICIT BUTTON
@@ -76,6 +82,16 @@ if os.path.exists(alt_logo_file):
         alt_logo_base = base64.b64encode(img.read()).decode()
     alt_logo_uri = f'data:image/png;base64,{alt_logo_base}'
     html_content = html_content.replace('logoAlt.src = "../breaking_news/Final_Logo.png";', f'logoAlt.src = "{alt_logo_uri}";')
+
+# Standard News — Colorful AND Multi-Template Studio both use the transparent Idi Mana Hakku logo
+# at the repo root, for both the primary `logo` and the alternate `logoAlt` references.
+final_logo_file = "Idi_Mana_Hakku_Logo_Transparent.png"
+if os.path.exists(final_logo_file):
+    with open(final_logo_file, "rb") as img:
+        final_logo_base = base64.b64encode(img.read()).decode()
+    final_logo_uri = f'data:image/png;base64,{final_logo_base}'
+    html_content = html_content.replace('logo.src = "../Idi_Mana_Hakku_Logo_Transparent.png";', f'logo.src = "{final_logo_uri}";')
+    html_content = html_content.replace('logoAlt.src = "../Idi_Mana_Hakku_Logo_Transparent.png";', f'logoAlt.src = "{final_logo_uri}";')
 
 # Inject active_id into JS
 html_content = html_content.replace(

@@ -215,13 +215,13 @@
     const canvas = document.getElementById("posterCanvas");
     const ctx = canvas.getContext("2d");
 
-    // Shared brand logo (root of project). "../" keeps this file self-contained in its own folder.
+    // Shared transparent brand logo — used by all three templates.
+    // "../" keeps this file self-contained in its own folder.
     const logo = new Image();
-    logo.src = "../logo.png";
+    logo.src = "../Idi_Mana_Hakku_Logo_Transparent.png";
 
-    // Breaking-news logo — used by the Bold Dark & Magazine templates.
     const logoAlt = new Image();
-    logoAlt.src = "../breaking_news/Final_Logo.png";
+    logoAlt.src = "../Idi_Mana_Hakku_Logo_Transparent.png";
 
     // ---- Brand vector icons (inline SVG data-URIs) ----
     const imgFB = new Image();
@@ -408,10 +408,8 @@
 
         // Header
         ctx.fillStyle = "#F9E03D"; ctx.fillRect(0, 0, W, headerH);
-        try {
-            const pad = 22, lW = W * 0.50, lH = headerH - pad * 2;
-            ctx.drawImage(logo, 60, pad, lW, lH);
-        } catch (e) {}
+        // Aspect-preserving logo fit — narrower box so it no longer stretches across half the header.
+        drawLogoFit(logo, 55, 22, W * 0.35, headerH - 44);
         ctx.fillStyle = "#1a237e"; ctx.textAlign = "right";
         ctx.font = "bold 34px 'Ramabhadra'"; ctx.fillText("సమాచార పత్రిక", W - 100, headerH / 2 - 80);
         ctx.font = "bold 40px 'Ramabhadra'"; ctx.fillText(data.date, W - 100, headerH / 2 + 5);

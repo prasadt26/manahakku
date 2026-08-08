@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mana Hakku | Standard News — Colorful</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@300;400;700&family=Ramabhadra&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-news: #0d9488;
+            --gold-premium: #d4af37;
+        }
+
+        body {
+            background: radial-gradient(1200px 600px at 20% -10%, #134e4a 0%, #0f172a 55%, #060b1a 100%);
+            font-family: 'Inter', 'Noto Sans Telugu', sans-serif;
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+
+        .page-header {
+            background: linear-gradient(90deg, #0f766e 0%, #0d9488 100%);
+            padding: 15px;
+            color: white;
+            border-bottom: 4px solid var(--gold-premium);
+            margin-bottom: 25px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            color: #1e293b;
+        }
+
+        .gradient-border-box {
+            padding: 3px;
+            background: linear-gradient(60deg, #0d9488, #d4af37, #7c3aed, #059669);
+            background-size: 300% 300%;
+            animation: moveGradient 5s alternate infinite;
+            border-radius: 22px;
+            position: sticky;
+            top: 16px;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.55);
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 0.78rem;
+            letter-spacing: 0.03em;
+            color: var(--primary-news);
+            margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .btn-generate { background: #0d9488; color: white; font-weight: bold; border: none; padding: 12px; }
+        .btn-generate:hover { background: #0f766e; color:#fff; }
+        .btn-download { background: #c00; color: white; border: none; padding: 12px; font-weight:bold; }
+        .btn-download:hover { background: #a00; color:#fff; }
+
+        .char-counter { font-size: 0.7rem; color: #64748b; text-align: right; display: block; margin-bottom: 12px; }
+
+        .id-badge {
+            background: #ccfbf1; color: #115e59; padding: 5px 12px; border-radius: 8px;
+            font-weight: bold; font-size: 0.9rem; border: 1px solid #99f6e4;
+            display: inline-block; margin-bottom: 16px;
+        }
+
+        .img-container { min-height: 380px; max-height: 500px; width: 100%; }
+
+        /* ---- Theme picker cards ---- */
+        .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 6px; }
+        .theme-card {
+            border: 2px solid #e2e8f0; border-radius: 12px; padding: 8px; cursor: pointer;
+            text-align: center; transition: all .18s ease; background:#fff;
+        }
+        .theme-card:hover { border-color: var(--gold-premium); transform: translateY(-2px); }
+        .theme-card.active { border-color: var(--primary-news); box-shadow: 0 0 0 3px rgba(13,148,136,0.18); }
+        .theme-swatch { height: 56px; border-radius: 8px; margin-bottom: 6px; }
+        .theme-name { font-size: 0.68rem; font-weight: 700; color:#334155; }
+
+        .sw-cream   { background: linear-gradient(180deg,#fef9c3 0 30%,#d4af37 30% 40%,#0c4a6e 40% 82%,#1e40af 82% 100%); }
+        .sw-sky     { background: linear-gradient(180deg,#e0f2fe 0 30%,#f59e0b 30% 40%,#075985 40% 82%,#0c4a6e 82% 100%); }
+        .sw-peach   { background: linear-gradient(180deg,#ffedd5 0 30%,#eab308 30% 40%,#c2410c 40% 82%,#7c2d12 82% 100%); }
+
+        .hint { font-size:.72rem; color:#64748b; margin-top:-4px; margin-bottom:14px; }
+    </style>
+</head>
+<body>
+
+<header class="page-header text-center">
+    <h2 class="mb-0" style="font-family: 'Ramabhadra';">మన హక్కు
+        <span style="font-weight: 300; font-size: 1.1rem; color: #fef9c3;">Standard News — Colorful</span>
+    </h2>
+</header>
+
+<div class="container-fluid px-4 pb-5">
+    <div class="row g-4">
+        <div class="col-lg-4 col-xl-3">
+            <div class="gradient-border-box">
+                <div class="control-panel">
+                    <div class="text-center">
+                        <span class="id-badge">Current News ID: <span id="displayID">LOADING...</span></span>
+                    </div>
+
+                    <label class="section-title">1. Choose Color Theme</label>
+                    <div class="theme-grid" id="themeGrid">
+                        <div class="theme-card active" data-theme="cream">
+                            <div class="theme-swatch sw-cream"></div>
+                            <div class="theme-name">Cream Ivory</div>
+                        </div>
+                        <div class="theme-card" data-theme="sky">
+                            <div class="theme-swatch sw-sky"></div>
+                            <div class="theme-name">Sky Mist</div>
+                        </div>
+                        <div class="theme-card" data-theme="peach">
+                            <div class="theme-swatch sw-peach"></div>
+                            <div class="theme-name">Peach Blush</div>
+                        </div>
+                    </div>
+                    <p class="hint">Pick a theme to change the poster's color scheme.</p>
+
+                    <label class="section-title">2. Photo (Upload & Crop)</label>
+                    <input type="file" id="imageUpload" class="form-control mb-3" accept="image/*">
+
+                    <label class="section-title">3. Headline</label>
+                    <textarea id="headline" class="form-control" rows="3" placeholder="Enter headline..." maxlength="120"></textarea>
+                    <span id="headlineCounter" class="char-counter">0 / 120</span>
+
+                    <label class="section-title">4. Description</label>
+                    <textarea id="description" rows="5" class="form-control" placeholder="Write news content..." maxlength="1000"></textarea>
+                    <span id="descriptionCounter" class="char-counter">0 / 1000</span>
+
+                    <div class="row g-2">
+                        <div class="col-7">
+                            <label class="section-title">5. Location</label>
+                            <input type="text" id="locationInput" class="form-control mb-3" value="రామగుండం" placeholder="Location">
+                        </div>
+                        <div class="col-5">
+                            <label class="section-title">6. Date</label>
+                            <input type="date" id="dateInput" class="form-control mb-3">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-generate w-100 mb-2" onclick="generatePoster()">PREVIEW POSTER</button>
+                    <button class="btn btn-download w-100" onclick="downloadPoster()">DOWNLOAD PNG</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-xl-9 text-center">
+            <canvas id="posterCanvas" width="1500" height="2600"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Crop Modal -->
+<div class="modal fade" id="cropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adjust & Crop Photo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="img-container"><img id="imageToCrop" src=""></div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div>
+                    <button type="button" class="btn btn-outline-dark" onclick="cropper.rotate(-90)">↺ Rotate</button>
+                    <button type="button" class="btn btn-outline-dark" onclick="cropper.rotate(90)">↻ Rotate</button>
+                </div>
+                <button type="button" class="btn btn-primary px-4" onclick="applyCrop()">Apply & Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<script>
+    const canvas = document.getElementById("posterCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Enhanced logo — Python (app.py) will inline this as base64 at serve time.
+    const logo = new Image();
+    logo.crossOrigin = "anonymous";
+
+    // Offscreen canvas holding the logo with near-white pixels knocked out to transparent,
+    // so it blends seamlessly onto whatever header gradient the theme is using.
+    let logoTransparent = null;
+    logo.onload = () => {
+        try {
+            const off = document.createElement('canvas');
+            off.width  = logo.naturalWidth;
+            off.height = logo.naturalHeight;
+            const octx = off.getContext('2d');
+            octx.drawImage(logo, 0, 0);
+            const img = octx.getImageData(0, 0, off.width, off.height);
+            const d = img.data;
+            // Only strip pure/near-pure white so cream tones and light gradients inside
+            // the logo (ribbon shading, highlights) stay intact.
+            const HARD = 250, SOFT = 240;
+            for (let i = 0; i < d.length; i += 4) {
+                const r = d[i], g = d[i + 1], b = d[i + 2];
+                const m = Math.min(r, g, b);
+                if (m >= HARD) {
+                    d[i + 3] = 0;
+                } else if (m >= SOFT) {
+                    // Narrow anti-alias feather only in [240..250)
+                    d[i + 3] = Math.round(d[i + 3] * (HARD - m) / (HARD - SOFT));
+                }
+            }
+            octx.putImageData(img, 0, 0);
+            logoTransparent = off;
+            if (croppedImageData) generatePoster();
+        } catch (e) {
+            // Cross-origin taint or similar — fall back to raw logo silently.
+            logoTransparent = null;
+        }
+    };
+    logo.src = "../Idi_Mana_Hakku_Logo_Transparent.png";
+
+    // Social icons (inline SVG data-URIs, brand colors)
+    const imgFB = new Image();
+    imgFB.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231877F2'><path d='M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z'/></svg>";
+    const imgIG = new Image();
+    imgIG.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23E4405F'><path d='M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z'/></svg>";
+    const imgWA = new Image();
+    imgWA.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325D366'><path d='M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.455L0 24zm6.59-3.559c1.649.979 3.26 1.492 4.905 1.493 5.398 0 9.794-4.397 9.797-9.798a9.71 9.71 0 0 0-2.87-6.932 9.74 9.74 0 0 0-6.923-2.866c-5.399 0-9.796 4.399-9.8 9.801a9.745 9.745 0 0 0 1.493 4.916l-.995 3.635 3.73-.978zM16.582 13.5c-.272-.136-1.611-.795-1.86-.886-.25-.092-.432-.136-.613.136-.182.273-.705.886-.864 1.068-.159.182-.318.205-.59.069-.272-.136-1.15-.424-2.19-1.353-.809-.722-1.354-1.616-1.513-1.888-.159-.273-.017-.42.119-.556.123-.122.272-.318.409-.477.136-.159.182-.272.272-.454.091-.181.046-.34-.023-.477-.069-.136-.613-1.477-.839-2.023-.22-.531-.44-.459-.613-.468-.159-.008-.341-.01-.523-.01s-.477.068-.727.34c-.25.272-.954.932-.954 2.272s.977 2.636 1.114 2.818c.136.182 1.92 2.931 4.653 4.113.65.28 1.157.447 1.553.573.654.208 1.248.178 1.717.108.523-.078 1.611-.659 1.839-1.295.227-.636.227-1.182.159-1.295-.069-.114-.249-.182-.522-.318z'/></svg>";
+    const imgYT = new Image();
+    imgYT.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FF0000'><path d='M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'/></svg>";
+    const imgWeb = new Image();
+    imgWeb.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230d9488'><path d='M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm8.854 8h-2.908c-.347-1.742-.888-3.344-1.595-4.723C18.106 4.357 19.742 5.955 20.854 8zm-5.96 0H9.106c-.309-1.644-.768-3.2-1.362-4.55C8.948 2.502 10.428 2 12 2s3.052.502 4.256 1.45c-.594 1.35-1.053 2.906-1.362 4.55zM4.054 14c-.036-.653-.054-1.32-.054-2s.018-1.347.054-2h4.048c-.033.655-.052 1.319-.052 2s.019 1.345.052 2H4.054zm.798-6c1.112-2.045 2.748-3.643 4.505-4.723-.707 1.379-1.248 2.981-1.595 4.723H4.852zM12 22c-1.572 0-3.052-.502-4.256-1.45.594-1.35 1.053-2.906 1.362-4.55h5.788c.309 1.644.768 3.2 1.362 4.55C15.052 21.498 13.572 22 12 22zm2.946-8H9.054c-.032-.652-.054-1.317-.054-2s.022-1.348.054-2h5.892c.032.652.054 1.317.054 2s-.022 1.348-.054 2zm.9 6.723c.707-1.379 1.248-2.981 1.595-4.723h2.908c-1.112 2.045-2.748 3.643-4.503 4.723zm4.246-4.723h-4.048c.033-.655.052-1.319.052-2s-.019-1.345-.052-2h4.048c.036.653.054 1.32.054 2s-.018 1.347-.054 2z'/></svg>";
+
+    // ---- Themes ----
+    const THEMES = {
+        cream: {
+            headerStart:  "#fef9c3", headerEnd:  "#fef3c7", headerText: "#1e3a8a",
+            headlineStart:"#0c4a6e", headlineEnd:"#1e40af", headlineText:"#ffffff",
+            accent:       "#d4af37",
+            descId:       "#b45309", descBody:  "#1e293b",
+            footerLink:   "#1e3a8a", reporter:  "#1e3a8a",
+            border1:      "#d4af37", border2:  "#92400e", border3:  "#1e40af"
+        },
+        sky: {
+            headerStart:  "#e0f2fe", headerEnd:  "#dbeafe", headerText: "#0c4a6e",
+            headlineStart:"#075985", headlineEnd:"#0284c7", headlineText:"#ffffff",
+            accent:       "#f59e0b",
+            descId:       "#075985", descBody:  "#1e293b",
+            footerLink:   "#075985", reporter:  "#075985",
+            border1:      "#0284c7", border2:  "#f59e0b", border3:  "#0c4a6e"
+        },
+        peach: {
+            headerStart:  "#ffedd5", headerEnd:  "#fee2e2", headerText: "#7c2d12",
+            headlineStart:"#7c2d12", headlineEnd:"#c2410c", headlineText:"#ffffff",
+            accent:       "#eab308",
+            descId:       "#c2410c", descBody:  "#1e293b",
+            footerLink:   "#7c2d12", reporter:  "#7c2d12",
+            border1:      "#c2410c", border2:  "#eab308", border3:  "#7c2d12"
+        }
+    };
+
+    // Live theme in use.
+    let THEME = { ...THEMES.cream };
+    let activeTheme = "cream";
+
+    function applyPreset(name) {
+        activeTheme = name;
+        THEME = { ...THEMES[name] };
+        document.querySelectorAll('.theme-card').forEach(c =>
+            c.classList.toggle('active', c.dataset.theme === name));
+        if (croppedImageData) generatePoster();
+    }
+
+    // Bind theme cards
+    document.querySelectorAll('.theme-card').forEach(card => {
+        card.addEventListener('click', () => applyPreset(card.dataset.theme));
+    });
+
+    // ---- Standard form state ----
+    const hInput = document.getElementById('headline');
+    const dInput = document.getElementById('description');
+    const imageUpload = document.getElementById('imageUpload');
+    const imageToCrop = document.getElementById('imageToCrop');
+
+    let cropper;
+    let croppedImageData = null;
+    const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
+
+    let activeID = parseInt(localStorage.getItem('newsCounter')) || 35;
+    const updateIDDisplay = () => {
+        document.getElementById('displayID').textContent = `IMH-2026-${String(activeID).padStart(3, '0')}`;
+    };
+    updateIDDisplay();
+
+    hInput.addEventListener('input', () => { document.getElementById('headlineCounter').textContent = `${hInput.value.length} / 120`; });
+    dInput.addEventListener('input', () => { document.getElementById('descriptionCounter').textContent = `${dInput.value.length} / 1000`; });
+
+    imageUpload.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (event) => { imageToCrop.src = event.target.result; cropModal.show(); };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    document.getElementById('cropModal').addEventListener('shown.bs.modal', function () {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(imageToCrop, { aspectRatio: NaN, viewMode: 1, autoCropArea: 1, dragMode: 'move' });
+    });
+
+    function applyCrop() {
+        const c = cropper.getCroppedCanvas({ imageSmoothingEnabled: true, imageSmoothingQuality: 'high' });
+        croppedImageData = c.toDataURL('image/jpeg', 0.92);
+        cropModal.hide();
+        generatePoster();
+    }
+
+    function generatePoster() {
+        if (!croppedImageData) { alert("Please upload and crop an image first!"); return; }
+        const headline = hInput.value || "ఇక్కడ శీర్షిక రాయండి";
+        const description = dInput.value || "ఇక్కడ వార్తా వివరాలు రాయండి...";
+        const dateValue = document.getElementById("dateInput").value || new Date().toLocaleDateString("en-IN");
+        const locationValue = document.getElementById("locationInput").value || "రామగుండం";
+
+        const mainImage = new Image();
+        mainImage.src = croppedImageData;
+        mainImage.onload = () => drawPoster(mainImage, headline, description, dateValue, activeID, locationValue);
+    }
+
+    function drawPoster(mainImage, headline, description, dateValue, currentID, locationValue) {
+        const W = canvas.width, H = canvas.height;
+        ctx.clearRect(0, 0, W, H);
+
+        const headerH   = H * 0.12;
+        const imageH    = H * 0.45;
+        const headlineH = H * 0.14;
+        const captionStart = headerH + imageH;
+
+        // Background
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, W, H);
+
+        // Photo
+        ctx.drawImage(mainImage, 0, headerH, W, imageH);
+
+        // Header — themed gradient
+        const hg = ctx.createLinearGradient(0, 0, W, 0);
+        hg.addColorStop(0, THEME.headerStart);
+        hg.addColorStop(1, THEME.headerEnd);
+        ctx.fillStyle = hg;
+        ctx.fillRect(0, 0, W, headerH);
+
+        // Logo — white-stripped version, fitted aspect-preserving (no squish)
+        try {
+            const padding = 18;
+            const boxW = W * 0.52;
+            const boxH = headerH - (padding * 2);
+            const src = logoTransparent || logo;
+            const srcW = src.naturalWidth || src.width;
+            const srcH = src.naturalHeight || src.height;
+            if (srcW && srcH) {
+                const r = srcW / srcH;
+                let w = boxW, h = w / r;
+                if (h > boxH) { h = boxH; w = h * r; }
+                const y = padding + (boxH - h) / 2;
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(src, 55, y, w, h);
+            }
+        } catch (e) {}
+
+        // Header text (Telugu)
+        ctx.fillStyle = THEME.headerText;
+        ctx.textAlign = "right";
+        ctx.font = "bold 35px 'Ramabhadra'";
+        ctx.fillText("సమాచార పత్రిక", W - 100, headerH / 2 - 85);
+        ctx.font = "bold 40px 'Ramabhadra'";
+        ctx.fillText(dateValue, W - 100, headerH / 2 + 5);
+        ctx.font = "bold 50px 'Ramabhadra'";
+        ctx.fillText(locationValue, W - 100, headerH / 2 + 80);
+
+        // Headline bar — themed gradient + accent strips
+        const hlGrad = ctx.createLinearGradient(0, captionStart, 0, captionStart + headlineH);
+        hlGrad.addColorStop(0,   THEME.headlineStart);
+        hlGrad.addColorStop(0.5, THEME.headlineEnd);
+        hlGrad.addColorStop(1,   THEME.headlineStart);
+        ctx.fillStyle = hlGrad;
+        ctx.fillRect(0, captionStart, W, headlineH);
+        ctx.fillStyle = THEME.accent;
+        ctx.fillRect(0, captionStart, W, 8);
+        ctx.fillRect(0, captionStart + headlineH - 8, W, 8);
+
+        // Headline text
+        ctx.fillStyle = THEME.headlineText;
+        ctx.textAlign = "center";
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = "rgba(0,0,0,0.8)";
+
+        let hFontSize = 110, hLineHeight = 120;
+        let hLines = [];
+        const hMaxWidth = W - 200;
+        const hMaxTotalHeight = headlineH - 40;
+
+        do {
+            ctx.font = `bold ${hFontSize}px 'Ramabhadra'`;
+            hLines = getWrappedLines(headline, hMaxWidth);
+            if ((hLines.length * hLineHeight) <= hMaxTotalHeight || hFontSize <= 65) break;
+            hFontSize -= 2;
+            hLineHeight -= 2.2;
+        } while (hFontSize > 65);
+
+        let hStartY = captionStart + (headlineH / 2) - ((hLines.length * hLineHeight) / 2) + (hFontSize * 0.8);
+        hLines.forEach(line => { ctx.fillText(line, W / 2, hStartY); hStartY += hLineHeight; });
+        ctx.shadowBlur = 0;
+
+        // Description section
+        const descStart = captionStart + headlineH;
+        ctx.fillStyle = "#f8fafc";
+        ctx.fillRect(0, descStart, W, H - descStart);
+
+        ctx.textAlign = "left";
+        ctx.font = "bold 30px 'Ramabhadra'";
+        ctx.fillStyle = THEME.descId;
+        const infoLine = `📍 ${locationValue}  |  🆔 News No: IMH-2026-${String(currentID).padStart(3, '0')}  |  🗓 ${dateValue}`;
+        ctx.fillText(infoLine, 35, descStart + 45);
+
+        ctx.fillStyle = THEME.descBody;
+        let dFontSize = 55, dLineHeight = 85;
+        let dLines = [];
+        const contentStartX = 40;
+        const contentStartY = descStart + 120;
+        const contentMaxWidth = W - 80;
+
+        do {
+            ctx.font = `${dFontSize}px 'Ramabhadra'`;
+            dLines = getWrappedLines(description, contentMaxWidth);
+            if ((dLines.length * dLineHeight) <= (H - contentStartY - 100) || dFontSize <= 30) break;
+            dFontSize -= 1;
+            dLineHeight -= 1.5;
+        } while (dFontSize > 25);
+
+        let dCurrentY = contentStartY;
+        dLines.forEach(line => { ctx.fillText(line, contentStartX, dCurrentY); dCurrentY += dLineHeight; });
+
+        // Watermark
+        ctx.globalAlpha = 0.04;
+        ctx.font = "bold 220px 'Ramabhadra'";
+        ctx.fillStyle = "#000";
+        ctx.textAlign = "center";
+        ctx.fillText("మన హక్కు", W / 2, H * 0.88);
+        ctx.globalAlpha = 1;
+
+        // Footer
+        const bottomY = H - 50;
+
+        ctx.save();
+        let currentX = 45;
+        const iconSize = 36, iconGap = 10;
+        [imgFB, imgIG, imgWA, imgYT, imgWeb].forEach(ic => {
+            try { ctx.drawImage(ic, currentX, bottomY - iconSize + 4, iconSize, iconSize); } catch (e) {}
+            currentX += iconSize + iconGap;
+        });
+        currentX += 5;
+
+        ctx.textAlign = "left";
+        ctx.font = "bold 30px 'Ramabhadra'";
+        ctx.fillStyle = THEME.footerLink;
+        ctx.fillText("/idimanahakku.in", currentX, bottomY);
+        ctx.restore();
+
+        // Reporter
+        ctx.textAlign = "right";
+        ctx.fillStyle = THEME.reporter;
+        const paddingRight = 30;
+        ctx.font = "bold 35px 'Ramabhadra'";
+        const teluguText = "వడ్లకొండ మహేందర్ గౌడ్🔴";
+        ctx.fillText(teluguText, W - paddingRight, bottomY);
+        const teluguWidth = ctx.measureText(teluguText).width;
+        ctx.font = "bold 30px 'Ramabhadra'";
+        ctx.fillText("✍️IMH:MD & Editor✍️🔴", W - paddingRight - teluguWidth - 15, bottomY);
+        ctx.textAlign = "left";
+
+        // Themed border
+        const bGrad = ctx.createLinearGradient(0, 0, W, H);
+        bGrad.addColorStop(0,   THEME.border1);
+        bGrad.addColorStop(0.5, THEME.border2);
+        bGrad.addColorStop(1,   THEME.border3);
+        ctx.strokeStyle = bGrad;
+        ctx.lineWidth = 18;
+        ctx.strokeRect(9, 9, W - 18, H - 18);
+    }
+
+    function getWrappedLines(text, maxWidth) {
+        if (!text) return [""];
+        const words = text.split(" ");
+        let lines = [], currentLine = "";
+        for (let n = 0; n < words.length; n++) {
+            let testLine = currentLine + words[n] + " ";
+            if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                lines.push(currentLine.trim());
+                currentLine = words[n] + " ";
+            } else { currentLine = testLine; }
+        }
+        lines.push(currentLine.trim());
+        return lines;
+    }
+
+    function downloadPoster() {
+        if (!croppedImageData) { alert("Please generate a poster first!"); return; }
+        const link = document.createElement('a');
+        link.download = `ManaHakku_Colorful_${activeTheme}_${activeID}.png`;
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+    }
+
+</script>
+
+</body>
+</html>
